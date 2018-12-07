@@ -15,4 +15,7 @@ test-server:
 run-server:
 	pipenv run python -m server
 
+print-routes:
+	FLASK_APP=server.py pipenv run flask routes
+
 all: init test-game test-server run-server
