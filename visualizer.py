@@ -1,4 +1,5 @@
-import sys, pygame, simulator
+import sys, pygame, simulator, requests, simulator, time
+from flask import json
 pygame.init()
 
 # Define some colors
@@ -9,7 +10,6 @@ RED = (255, 0, 0)
 
 size = width, height = 700, 500
 speed = [2, 2]
-black = 0, 0, 0
 
 pygame.display.set_caption("PUZZLER 2018")
 
@@ -18,16 +18,36 @@ screen = pygame.display.set_mode(size)
 ball = pygame.image.load("assets/badHexy.png")
 ballrect = ball.get_rect()
 
+pygame.font.init()
+myfont = pygame.font.SysFont('Comic Sans MS', 30)
+
+sim = None
+
 while 1:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
 
-    ballrect = ballrect.move(speed)
-    if ballrect.left < 0 or ballrect.right > width:
-        speed[0] = -speed[0]
-    if ballrect.top < 0 or ballrect.bottom > height:
-        speed[1] = -speed[1]
+    screen.fill(BACKGROUND_COLOR)
 
-    screen.fill(black)
-    screen.blit(ball, ballrect)
+    if(sim == None):
+        url = 'http://127.0.0.1:5000/simulator/state'
+        reason = 'unknown'
+        try:
+            r = requests.get(url)
+            if(r.status_code==200):
+                sim = simulator.Simulator(fromDict=r.json())
+            else:
+                reason = 'status code: ' + str(r.status_code)
+        except:
+            reason = 'can not connect'
+        if sim == None:
+            textsurface = myfont.render('connecting to ' + url + ' ...', False, RED)
+            screen.blit(textsurface,(0,0))
+    else:
+        ballrect = ballrect.move(speed)
+        if ballrect.left < 0 or ballrect.right > width:
+            speed[0] = -speed[0]
+        if ballrect.top < 0 or ballrect.bottom > height:
+            speed[1] = -speed[1]
+        screen.blit(ball, ballrect)
     pygame.display.flip()

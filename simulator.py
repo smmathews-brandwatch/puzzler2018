@@ -8,6 +8,8 @@ from enum import Enum
 class GameObject(object):
     def __init__(self):
         super().__init__()
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
 
 class BoardPiece(GameObject):
     Empty = 1
@@ -33,25 +35,38 @@ class CustomJSONEncoder(JSONEncoder):
         return JSONEncoder.default(self, obj)
 
 class Position(GameObject):
-    def __init__(self, x, y):
+    def __init__(self, fromDict=None, x=None, y=None):
         super(Position, self).__init__()
         self.x = x
         self.y = y
 
 class Entity(GameObject):
-    def __init__(self, position, id, boardPiece):
+    def __init__(self, fromDict=None, position=None, id=None, boardPiece=None):
         super(Entity, self).__init__()
-        self.position = position
-        self.id = id
-        self.boardPiece = boardPiece
+        if(fromDict == None):
+            self.position = position
+            self.id = id
+            self.boardPiece = boardPiece
+        else:
+            self.position = Position(fromDict=fromDict['position'])
+            self.id = fromDict['id']
+            self.boardPiece = fromDict['boardPiece']
 
 class Board(GameObject):
-    def __init__(self, height, width, numEnemies):
+    def __init__(self, fromDict=None, height=None, width=None, numEnemies=None):
         super().__init__()
-        self.height = height
-        self.width = width
-        self.numEnemies = numEnemies
-        self.initEntities()
+        if(fromDict == None):
+            self.height = height
+            self.width = width
+            self.numEnemies = numEnemies
+            self.initEntities()
+        else:
+            self.height = fromDict['height']
+            self.width = fromDict['width']
+            self.numEnemies = fromDict['numEnemies']
+            for entity in fromDict['entities']:
+                self.entities = []
+                self.entities.append(Entity(fromDict=entity))
     
     def initEntities(self):
         field = []
@@ -67,9 +82,9 @@ class Board(GameObject):
         id = 0
         for x in range(self.width):
             for y in range(self.height):
-                fieldPiece = field[y*self.width+x]
-                if(fieldPiece > BoardPiece.Empty):
-                    self.entities.append(Entity(Position(x,y),id,fieldPiece))
+                boardPiece = field[y*self.width+x]
+                if(boardPiece > BoardPiece.Empty):
+                    self.entities.append(Entity(position=Position(x=x,y=y),id=id,boardPiece=boardPiece))
                     id += 1
 
 
@@ -83,10 +98,14 @@ class Score(GameObject):
         self.lost = 0
 
 class Simulator(GameObject):
-    def __init__(self, seed=None, height=640, width=640, numEnemies=1):
+    def __init__(self, fromDict=None, seed=None, height=640, width=640, numEnemies=1):
         super().__init__()
-        if(seed == None):
-            seed = int(round(time.time() * 1000 * 1000))
-        self.randomSeed = seed
-        random.seed(seed)
-        self.board = Board(height, width, numEnemies)
+        if(fromDict == None):
+            if(seed == None):
+                seed = int(round(time.time() * 1000 * 1000))
+            self.randomSeed = seed
+            random.seed(seed)
+            self.board = Board(height=height, width=width, numEnemies=numEnemies)
+        else:
+            self.randomSeed = fromDict['randomSeed']
+            self.board = Board(fromDict=fromDict['board'])
