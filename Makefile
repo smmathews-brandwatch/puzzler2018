@@ -9,3 +9,5 @@ test-server:
 
 run-server:
 	pipenv run python server.py
+
+all: init test-game test-server run-server
