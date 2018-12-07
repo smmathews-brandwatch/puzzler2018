@@ -1,9 +1,17 @@
-import sys, pygame
+import sys, pygame, simulator
 pygame.init()
 
-size = width, height = 320, 240
+# Define some colors
+BACKGROUND_COLOR = (0, 0, 0)
+PLAYER_COLOR = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+
+size = width, height = 700, 500
 speed = [2, 2]
 black = 0, 0, 0
+
+pygame.display.set_caption("PUZZLER 2018")
 
 screen = pygame.display.set_mode(size)
 

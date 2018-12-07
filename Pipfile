@@ -8,7 +8,6 @@ pygame = "*"
 flask = "*"
 
 [dev-packages]
-
 nose = "*"
 
 [requires]
