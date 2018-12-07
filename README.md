@@ -5,3 +5,15 @@ execute the following to start a annoying-sounding aliens example game. you shou
 ```
 make && make test-game
 ```
+
+## Run server
+this actually runs the simulation
+```
+run-server
+```
+
+## Run visualizer
+this shows the current state of the local server's simulation
+```
+run-visualizer
+```
