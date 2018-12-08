@@ -44,7 +44,7 @@ def processInput(events):
 
 entityToImage = dict({
     simulator.BoardPiece.Enemy:ENEMIES,
-    simulator.BoardPiece.Diamond:COLLECTIBLES,
+    simulator.BoardPiece.Collectible:COLLECTIBLES,
 })
 entityToColor = dict({
     simulator.BoardPiece.Bot:PLAYER_COLOR,
@@ -86,8 +86,6 @@ def draw(sim):
                     (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN,
                     pieceWidth,
                     pieceHeight)
-                print(entity.position.x)
-                print(entity.position.y)
                 screen.blit(image, rect)
     pygame.display.flip()
 

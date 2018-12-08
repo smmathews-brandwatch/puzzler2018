@@ -15,7 +15,7 @@ class BoardPiece(GameObject):
     Empty = 1
     Bot = 2
     Enemy = 3
-    Diamond = 4
+    Collectible = 4
     HomeBase = 5
     EnemyBase = 6
 
@@ -57,21 +57,26 @@ class Entity(GameObject):
             self.boardPiece = fromDict['boardPiece']
 
 class Board(GameObject):
-    def __init__(self, fromDict=None, height=None, width=None, numEnemies=None):
+    def __init__(self, fromDict=None, height=None, width=None, numEnemies=None, numCollectibles=None):
         super().__init__()
         if(fromDict == None):
             self.height = height
             self.width = width
             self.numEnemies = numEnemies
+            self.numCollectibles = numCollectibles
             self.initEntities()
         else:
             self.height = fromDict['height']
             self.width = fromDict['width']
             self.numEnemies = fromDict['numEnemies']
+            self.numCollectibles = fromDict['numCollectibles']
             self.entities = []
             for entity in fromDict['entities']:
                 self.entities.append(Entity(fromDict=entity))
     
+    def sortEntitiesByPieceKey(self,entity):
+        return entity.boardPiece
+
     def initEntities(self):
         field = []
         field.append(BoardPiece.HomeBase)
@@ -79,37 +84,42 @@ class Board(GameObject):
         field.append(BoardPiece.Bot)
         for _i in range(self.numEnemies):
             field.append(BoardPiece.Enemy)
+        for _i in range(self.numCollectibles):
+            field.append(BoardPiece.Collectible)
         while(len(field) < self.height*self.width):
             field.append(BoardPiece.Empty)
         random.shuffle(field)
         self.entities = []
-        id = 0
         for x in range(self.width):
             for y in range(self.height):
                 boardPiece = field[y*self.width+x]
                 if(boardPiece > BoardPiece.Empty):
-                    self.entities.append(Entity(position=Position(x=x,y=y),id=id,boardPiece=boardPiece))
-                    id += 1
+                    self.entities.append(Entity(position=Position(x=x,y=y),boardPiece=boardPiece))
+        self.entities.sort(key=self.sortEntitiesByPieceKey)
+        id = 0
+        for entity in self.entities:
+            entity.id = id
+            id += 1
 
 
 
 class Score(GameObject):
     def __init__(self):
         super().__init__()
-        # how many times did the bot return a diamond to your base
+        # how many times did the bot return a collectible to your base
         self.rescued = 0
-        # how many times did the enemy return a diamond to their base, or leave a diamond on the field at the end
+        # how many times did the enemy return a collectible to their base, or leave a collectible on the field at the end
         self.lost = 0
 
 class Simulator(GameObject):
-    def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=2, simRound=0):
+    def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=2, numCollectibles=10, simRound=0):
         super().__init__()
         if(fromDict == None):
             if(seed == None):
                 seed = int(round(time.time() * 1000 * 1000))
             self.randomSeed = seed
             random.seed(seed)
-            self.board = Board(height=height, width=width, numEnemies=numEnemies)
+            self.board = Board(height=height, width=width, numEnemies=numEnemies, numCollectibles=numCollectibles)
             self.frame = 0
             self.simRound = simRound
         else:
