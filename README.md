@@ -19,7 +19,7 @@ run-visualizer
 ```
 
 ## Requested Feature List
-- [ ] Ability to demo top 5 implementations
+- [ ] Ability to demo top implementations
 - [X] Run simulator/visualizer locally
 - [ ] Local Web api to control the bot
 - [ ] Time limit
