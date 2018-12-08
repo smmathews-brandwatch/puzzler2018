@@ -1,10 +1,15 @@
-#uncomment the w in the following line if you're running anaconda and see a grey box for the visualizer
-pythonType=python#w
+# anaconda requires the use of pythonw for pygame, so check for that
+pythonType=python
+VER=$(shell python --version 2>&1)
+ifneq "$(findstring Anaconda, $(VER))" ""
+pythonType=pythonw
+endif
+
 init:
 	pipenv install --skip-lock
 
 test-visualizer:
-	pipenv run ${pythonType} -m pygame.examples.aliens
+	pipenv run $(pythonType) -m pygame.examples.aliens
 
 run-visualizer:
 	pipenv run ${pythonType} -m visualizer
