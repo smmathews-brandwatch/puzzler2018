@@ -83,7 +83,7 @@ while 1:
     processInput(pygame.event.get())
     newSim = getNewSim()
     simChanged = False
-    if((newSim is None) or (sim is None)):
+    if((newSim is None) != (sim is None)):
         simChanged = True
     elif((newSim is not None) and (sim is not None)):
         simChanged = newSim.frame != sim.frame
