@@ -1,5 +1,5 @@
 #uncomment the w in the following line if you're running anaconda and see a grey box for the visualizer
-pythonType=pythonw
+pythonType=python#w
 init:
 	pipenv install --skip-lock
 
