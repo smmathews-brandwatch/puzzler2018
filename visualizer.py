@@ -5,12 +5,12 @@ pygame.init()
 # Define some colors
 BACKGROUND_COLOR = (0, 0, 0)
 EMPTY_COLOR = (255, 255, 255)
+ENEMIES = [pygame.image.load("assets/cartoonHexy.png"),pygame.image.load("assets/humanHexy.png")]
+COLLECTIBLES = [pygame.image.load("assets/brandWatch.png")]
 PLAYER_COLOR = (128, 128, 128)
 HOME_BASE_COLOR = (0, 255, 0)
 ENEMY_BASE_COLOR = (128, 128, 0)
 RED = (255, 0, 0)
-ENEMY_COLOR = RED
-COLLECTIBLE_COLOR = (0, 0, 255)
 MARGIN = 1
 
 size = width, height = 700, 500
@@ -41,10 +41,12 @@ def processInput(events):
       if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE)  or (event.type == pygame.QUIT): 
          sys.exit(0)
 
+entityToImage = dict({
+    simulator.BoardPiece.Enemy:ENEMIES,
+    simulator.BoardPiece.Diamond:COLLECTIBLES,
+})
 entityToColor = dict({
     simulator.BoardPiece.Bot:PLAYER_COLOR,
-    simulator.BoardPiece.Enemy:ENEMY_COLOR,
-    simulator.BoardPiece.Diamond:COLLECTIBLE_COLOR,
     simulator.BoardPiece.HomeBase:HOME_BASE_COLOR,
     simulator.BoardPiece.EnemyBase:ENEMY_BASE_COLOR
 })
@@ -68,12 +70,24 @@ def draw(sim):
                                 pieceWidth,
                                 pieceHeight])
         for entity in sim.board.entities:
-            pygame.draw.rect(screen,
-                entityToColor[entity.boardPiece],
-                [(pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
-                (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN,
-                pieceWidth,
-                pieceHeight])
+            if(entity.boardPiece in entityToColor):
+                pygame.draw.rect(screen,
+                    entityToColor[entity.boardPiece],
+                    [(pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
+                    (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN,
+                    pieceWidth,
+                    pieceHeight])
+            else:
+                images = entityToImage[entity.boardPiece]
+                image = images[entity.id % len(images)]
+                image = pygame.transform.scale(image, (int(pieceWidth),int(pieceHeight)))
+                rect = pygame.Rect((pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
+                    (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN,
+                    pieceWidth,
+                    pieceHeight)
+                print(entity.position.x)
+                print(entity.position.y)
+                screen.blit(image, rect)
     pygame.display.flip()
 
 FPS = 60
@@ -86,8 +100,9 @@ while 1:
     if((newSim is None) != (sim is None)):
         simChanged = True
     elif((newSim is not None) and (sim is not None)):
-        simChanged = newSim.frame != sim.frame
+        simChanged = newSim.frame != sim.frame or newSim.simRound != sim.simRound
     sim = newSim
+    print(newSim.simRound)
     if(simChanged):
         draw(sim)
     clock.tick(FPS)

@@ -15,9 +15,8 @@ def health():
 @app.route('/simulator/new', methods=['POST'])
 def new():
     global simulator
-    simulator = sim.Simulator()
-    resp = jsonify(success=True)
-    return resp
+    simulator = sim.Simulator(simRound=simulator.simRound+1)
+    return jsonify(simulator)
 
 @app.route('/simulator/state', methods=['GET'])
 def state():

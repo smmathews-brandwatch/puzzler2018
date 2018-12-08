@@ -102,7 +102,7 @@ class Score(GameObject):
         self.lost = 0
 
 class Simulator(GameObject):
-    def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=1):
+    def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=2, simRound=0):
         super().__init__()
         if(fromDict == None):
             if(seed == None):
@@ -111,7 +111,9 @@ class Simulator(GameObject):
             random.seed(seed)
             self.board = Board(height=height, width=width, numEnemies=numEnemies)
             self.frame = 0
+            self.simRound = simRound
         else:
             self.randomSeed = fromDict['randomSeed']
             self.board = Board(fromDict=fromDict['board'])
             self.frame = fromDict['frame']
+            self.simRound = fromDict['simRound']
