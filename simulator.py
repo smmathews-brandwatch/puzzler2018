@@ -11,13 +11,40 @@ class GameObject(object):
     def __init__(self, **entries):
         self.__dict__.update(entries)
 
+class Action(GameObject):
+    Stay = 'stay'
+    MoveUp = 'up'
+    MoveDown = 'down'
+    MoveLeft = 'left'
+    MoveRight = 'right'
+
+class EntityAction(GameObject):
+    def __init__(self, fromDict=None, id=None, action=None):
+        super().__init__()
+        if(fromDict == None):
+            self.id = id
+            self.action = action
+        else:
+            self.id = fromDict['id']
+            self.action = fromDict['action']
+
+class TickRequest(GameObject):
+    def __init__(self, fromDict=None, entityIdsToAction=[]):
+        super().__init__()
+        if(fromDict == None):
+            self.entityIdsToAction = entityIdsToAction
+        else:
+            self.entityIdsToAction = []
+            for entityIdToAction in fromDict['entityIdsToAction']:
+                self.entityIdsToAction.append(EntityAction(fromDict=entityIdToAction))
+
 class BoardPiece(GameObject):
-    Empty = 1
-    Bot = 2
-    Enemy = 3
-    Collectible = 4
-    HomeBase = 5
-    EnemyBase = 6
+    Empty = 'empty'
+    Bot = 'bot'
+    Enemy = 'enemy'
+    Collectible = 'collectible'
+    HomeBase = 'home_base'
+    EnemyBase = 'enemy_base'
 
 # A customized JSON encoder that knows about your SiteConfig class
 class CustomJSONEncoder(JSONEncoder):
@@ -93,11 +120,11 @@ class Board(GameObject):
         for x in range(self.width):
             for y in range(self.height):
                 boardPiece = field[y*self.width+x]
-                if(boardPiece > BoardPiece.Empty):
+                if(boardPiece != BoardPiece.Empty):
                     self.entities.append(Entity(position=Position(x=x,y=y),boardPiece=boardPiece))
-        self.entities.sort(key=self.sortEntitiesByPieceKey)
+        sortedEntities = sorted(self.entities, key=self.sortEntitiesByPieceKey)
         id = 0
-        for entity in self.entities:
+        for entity in sortedEntities:
             entity.id = id
             id += 1
 
@@ -114,6 +141,7 @@ class Score(GameObject):
 class Simulator(GameObject):
     def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=2, numCollectibles=10, simRound=0):
         super().__init__()
+        self.maxFrames = 1800
         if(fromDict == None):
             if(seed == None):
                 seed = int(round(time.time() * 1000 * 1000))
@@ -127,3 +155,54 @@ class Simulator(GameObject):
             self.board = Board(fromDict=fromDict['board'])
             self.frame = fromDict['frame']
             self.simRound = fromDict['simRound']
+    
+    def tickAll(self, entityIdsToAction):
+        for entityIdToAction in entityIdsToAction:
+            for entity in self.board.entities:
+                    if(entity.id == entityIdToAction.id):
+                        entity.position
+                        if(entityIdToAction.action == Action.MoveUp):
+                            pass
+                        elif(entityIdToAction.action == Action.MoveDown):
+                            pass
+                        elif(entityIdToAction.action == Action.MoveLeft):
+                            pass
+                        elif(entityIdToAction.action == Action.MoveRight):
+                            pass
+
+    def tickBots(self, botsPartOfTick):
+        badIds = set()
+        duplicateIds = set()
+        seenIds = set()
+        for entityIdToAction in botsPartOfTick.entityIdsToAction:
+            if entityIdToAction.id not in seenIds:
+                seenIds.add(entityIdToAction.id)
+                for entity in self.board.entities:
+                    if(entity.id == entityIdToAction.id):
+                        foundEntity = True
+                        if(entity.boardPiece != BoardPiece.Bot):
+                            badIds.add(entityIdToAction.id)
+                            break
+                if(not foundEntity):
+                    badIds.add(entityIdToAction.id)
+            else:
+                duplicateIds.add(entityIdToAction.id)
+        if(len(badIds) > 0 or len(duplicateIds) > 0 or len(seenIds) > 0):
+            return BadTick(badIds=badIds, duplicateIds=duplicateIds, seenIds=seenIds)
+        allActions = []
+        allActions.extend(botsPartOfTick.entityIdsToAction)
+        # TODO: figure out the enemies part of the tick
+        self.tickAll(allActions)
+        return TickRequest(entityIdsToAction=allActions)
+
+class BadTick(GameObject):
+    def __init__(self, fromDict=None, badIds=None, duplicateIds=None, seenIds=None):
+        super().__init__()
+        if(fromDict == None):
+            self.badIds = badIds
+            self.duplicateIds = duplicateIds
+            self.seenIds = seenIds
+        else:
+            self.badIds = fromDict['badIds']
+            self.duplicateIds = fromDict['duplicateIds']
+            self.seenIds = fromDict['seenIds']

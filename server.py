@@ -1,22 +1,36 @@
-from flask import Flask,jsonify,url_for
+from flask import Flask, jsonify, url_for, request
 import webbrowser
-import simulator as sim
+from simulator import *
 import json
+import logging
 
 app = Flask(__name__, static_folder=None)
 app.env = 'development'
-app.json_encoder = sim.CustomJSONEncoder
-simulator = sim.Simulator()
+app.json_encoder = CustomJSONEncoder
+simulator = Simulator()
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 @app.route('/', methods=['GET'])
 def health():
     return 'Your server is running'
 
+# Start a new simulation, results of the current simulation will be treated as final
 @app.route('/simulator/new', methods=['POST'])
 def new():
     global simulator
-    simulator = sim.Simulator(simRound=simulator.simRound+1)
+    simulator = Simulator(simRound=simulator.simRound+1)
     return jsonify(simulator)
+
+@app.route('/simulator/tick', methods=['POST'])
+def tick():
+    botsTick = TickRequest(fromDict=request.get_json())
+    result = simulator.tickBots(botsTick)
+    response = jsonify(result)
+    if(isinstance(result,BadTick)):
+        response.status_code = 400
+    return response
 
 @app.route('/simulator/state', methods=['GET'])
 def state():
