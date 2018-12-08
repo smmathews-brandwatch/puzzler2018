@@ -23,26 +23,21 @@ myfont = pygame.font.SysFont('Comic Sans MS', 30)
 
 sim = None
 
-while 1:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: sys.exit()
-
-    screen.fill(BACKGROUND_COLOR)
-
-    if(sim == None):
-        url = 'http://127.0.0.1:5000/simulator/state'
-        reason = 'unknown'
-        try:
-            r = requests.get(url)
-            if(r.status_code==200):
-                sim = simulator.Simulator(fromDict=r.json())
-            else:
-                reason = 'status code: ' + str(r.status_code)
-        except:
-            reason = 'can not connect'
-        if sim == None:
-            textsurface = myfont.render('connecting to ' + url + ' ...', False, RED)
-            screen.blit(textsurface,(0,0))
+def updateSim():
+    global sim
+    url = 'http://127.0.0.1:5000/simulator/state'
+    reason = 'unknown'
+    try:
+        r = requests.get(url)
+        if(r.status_code==200):
+            sim = simulator.Simulator(fromDict=r.json())
+        else:
+            reason = 'status code: ' + str(r.status_code)
+    except:
+        reason = 'can not connect'
+    if sim == None:
+        textsurface = myfont.render('connecting to ' + url + ' ...', False, RED)
+        screen.blit(textsurface,(0,0))
     else:
         ballrect = ballrect.move(speed)
         if ballrect.left < 0 or ballrect.right > width:
@@ -50,4 +45,17 @@ while 1:
         if ballrect.top < 0 or ballrect.bottom > height:
             speed[1] = -speed[1]
         screen.blit(ball, ballrect)
+
+def processInput(events): 
+   for event in events: 
+      if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE)  or (event.type == pygame.QUIT): 
+         sys.exit(0) 
+      else: 
+         print(event)
+
+while 1:
+    screen.fill(BACKGROUND_COLOR)
+
+    processInput(pygame.event.get())
+    updateSim()
     pygame.display.flip()
