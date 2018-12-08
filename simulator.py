@@ -37,8 +37,12 @@ class CustomJSONEncoder(JSONEncoder):
 class Position(GameObject):
     def __init__(self, fromDict=None, x=None, y=None):
         super(Position, self).__init__()
-        self.x = x
-        self.y = y
+        if(fromDict == None):
+            self.x = x
+            self.y = y
+        else:
+            self.x = fromDict['x']
+            self.y = fromDict['y']
 
 class Entity(GameObject):
     def __init__(self, fromDict=None, position=None, id=None, boardPiece=None):
@@ -64,8 +68,8 @@ class Board(GameObject):
             self.height = fromDict['height']
             self.width = fromDict['width']
             self.numEnemies = fromDict['numEnemies']
+            self.entities = []
             for entity in fromDict['entities']:
-                self.entities = []
                 self.entities.append(Entity(fromDict=entity))
     
     def initEntities(self):
@@ -98,7 +102,7 @@ class Score(GameObject):
         self.lost = 0
 
 class Simulator(GameObject):
-    def __init__(self, fromDict=None, seed=None, height=640, width=640, numEnemies=1):
+    def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=1):
         super().__init__()
         if(fromDict == None):
             if(seed == None):
@@ -106,6 +110,8 @@ class Simulator(GameObject):
             self.randomSeed = seed
             random.seed(seed)
             self.board = Board(height=height, width=width, numEnemies=numEnemies)
+            self.frame = 0
         else:
             self.randomSeed = fromDict['randomSeed']
             self.board = Board(fromDict=fromDict['board'])
+            self.frame = fromDict['frame']
