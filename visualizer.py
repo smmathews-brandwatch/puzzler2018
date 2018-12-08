@@ -22,6 +22,7 @@ screen = pygame.display.set_mode(size)
 pygame.font.init()
 myfont = pygame.font.SysFont('Comic Sans MS', 30)
 
+neverDrawn = True
 sim = None
 
 def getNewSim():
@@ -52,8 +53,8 @@ entityToColor = dict({
 })
 
 def draw(sim):
-    global width
-    global height
+    global neverDrawn
+    neverDrawn = False
     screen.fill(BACKGROUND_COLOR)
     if sim == None:
         textsurface = myfont.render('connecting...', True, RED)
@@ -102,7 +103,6 @@ while 1:
     elif((newSim is not None) and (sim is not None)):
         simChanged = newSim.frame != sim.frame or newSim.simRound != sim.simRound
     sim = newSim
-    print(newSim.simRound)
-    if(simChanged):
+    if(simChanged or neverDrawn):
         draw(sim)
     clock.tick(FPS)
