@@ -76,14 +76,18 @@ def draw(sim):
                 pieceHeight])
     pygame.display.flip()
 
+FPS = 60
+clock = pygame.time.Clock() # Create a clock object
+
 while 1:
     processInput(pygame.event.get())
     newSim = getNewSim()
     simChanged = False
-    if((newSim is None) != (sim is None)):
+    if((newSim is None) or (sim is None)):
         simChanged = True
     elif((newSim is not None) and (sim is not None)):
         simChanged = newSim.frame != sim.frame
     sim = newSim
     if(simChanged):
         draw(sim)
+    clock.tick(FPS)
