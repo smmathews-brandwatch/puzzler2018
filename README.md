@@ -31,10 +31,12 @@ make run-base-bot
 - [ ] Ability to demo top implementations
 - [X] Run simulator/visualizer locally
 - [X] Local Web api to control the bot
-- [X] Time limit
+- [X] Move limit
 - [X] Same number of collectibles, but random location and random starting position of enemies
 - [X] Score = bot collected collectibles - enemy collected collectibles
 - [X] Simulation mode, 1000 games run. Record all scores. 
 - [X] 5 collectible carrying capacity, then must touch your base
 - [X] Base bot to be used as a template
 - [ ] Enemy bots are smart enough to win if the bot is not too smart
+- [ ] Well understood images for all entities
+- [ ] Display Leaderboard after max number of rounds
