@@ -20,10 +20,11 @@ def health():
 @app.route('/simulator/new', methods=['POST'])
 def new():
     global simulator
+    roundScores.append(simulator.score)
     simulator = Simulator(simRound=simulator.simRound+1)
     return jsonify(simulator)
 
-rounds = []
+roundScores = []
 
 @app.route('/simulator/tick', methods=['POST'])
 def tick():
@@ -33,9 +34,12 @@ def tick():
     if(isinstance(result,BadTick)):
         response.status_code = 400
     if(simulator.frame >= simulator.maxFrames):
-        rounds.append(simulator)
         new()
     return response
+
+@app.route('/roundScores', methods=['GET'])
+def scores():
+    return jsonify(roundScores)
 
 @app.route('/simulator/state', methods=['GET'])
 def state():

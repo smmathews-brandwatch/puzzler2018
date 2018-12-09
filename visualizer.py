@@ -101,7 +101,7 @@ def draw(sim):
     neverDrawn = False
     screen.fill(BACKGROUND_COLOR)
     textMargin = fontSize
-    textsurface = myfont.render('round:' + str(sim.simRound) + ' frame:' + str(sim.frame) + ' score:' + str(sim.score), True, RED)
+    textsurface = myfont.render('round:' + str(sim.simRound) + ' frame:' + str(sim.frame) + ' score:' + str(sim.score.rescued - sim.score.lost), True, RED)
     screen.blit(textsurface,(0,0))
     if(interactiveMode):
         textsurface = myfont.render('MODE: INTERACTIVE', True, RED)

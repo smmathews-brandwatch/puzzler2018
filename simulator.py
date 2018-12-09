@@ -140,15 +140,29 @@ class Board(GameObject):
             entity.id = id
             id += 1
 
-
+    def calculateScore(self):
+        toReturn = Score()
+        for entity in self.entities:
+            if entity.boardPiece == BoardPiece.Collectible and entity.ownerId is not None:
+                for otherEntity in self.entities:
+                    if otherEntity.id == entity.ownerId:
+                        if otherEntity.boardPiece == BoardPiece.EnemyBase:
+                            toReturn.lost += 1
+                        elif otherEntity.boardPiece == BoardPiece.BotBase:
+                            toReturn.rescued += 1
+        return toReturn
 
 class Score(GameObject):
-    def __init__(self):
+    def __init__(self, fromDict=None):
         super().__init__()
-        # how many times did the bot return a collectible to your base
-        self.rescued = 0
-        # how many times did the enemy return a collectible to their base, or leave a collectible on the field at the end
-        self.lost = 0
+        if(fromDict is None):
+            # how many times did the bot return a collectible to your base
+            self.rescued = 0
+            # how many times did the enemy return a collectible to their base
+            self.lost = 0
+        else:
+            self.rescued = fromDict['rescued']
+            self.lost = fromDict['lost']
 
 class Simulator(GameObject):
     def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=2, numCollectibles=10, simRound=0):
@@ -162,13 +176,13 @@ class Simulator(GameObject):
             self.board = Board(height=height, width=width, numEnemies=numEnemies, numCollectibles=numCollectibles)
             self.frame = 0
             self.simRound = simRound
-            self.score = 0
+            self.score = self.board.calculateScore()
         else:
             self.randomSeed = fromDict['randomSeed']
             self.board = Board(fromDict=fromDict['board'])
             self.frame = fromDict['frame']
             self.simRound = fromDict['simRound']
-            self.score = fromDict['score']
+            self.score = Score(fromDict=fromDict['score'])
     
     def transfer(self, oldEntity, newEntity):
         for otherEntity in self.board.entities:
@@ -214,6 +228,7 @@ class Simulator(GameObject):
                             self.moveEntity(entity, Position(x=1, y=0), entityIdToAction)
                         break
         self.frame += 1
+        self.score = self.board.calculateScore()
 
     def handleTickRequest(self, tickRequest):
         badIds = set()
