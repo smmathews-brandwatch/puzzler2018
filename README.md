@@ -31,3 +31,4 @@ run-visualizer
 - [X] Score = bot collected collectibles - enemy collected collectibles
 - [X] Simulation mode, 1000 games run. Record all scores. 
 - [ ] 5 collectible carrying capacity, then must touch your base
+- [ ] Base bot to be used as a template
