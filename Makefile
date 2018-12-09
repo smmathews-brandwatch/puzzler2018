@@ -22,3 +22,6 @@ print-routes:
 
 run-server:
 	pipenv run python -m server
+
+run-base-bot:
+	pipenv run python -m baseBot

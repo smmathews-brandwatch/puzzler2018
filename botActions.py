@@ -28,6 +28,9 @@ def sendBotAction(action):
             print(e)
             pass
 
+def sendStay():
+    sendBotAction(simulator.Action.Stay)
+
 def sendMoveUp():
     sendBotAction(simulator.Action.MoveUp)
 
