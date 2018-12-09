@@ -1,4 +1,4 @@
-import sys, pygame, simulator, requests, simulator, time, json
+import sys, pygame, simulator, requests, simulator, time, json, botActions
 pygame.init()
 
 # Define some colors
@@ -27,41 +27,7 @@ sim = None
 interactiveMode = False
 
 def getNewSim():
-    url = 'http://127.0.0.1:5000/simulator/state'
-    reason = 'unknown'
-    try:
-        r = requests.get(url)
-        if(r.status_code==200):
-            sim = simulator.Simulator(fromDict=r.json())
-            return sim
-    except:
-        pass
-    return None
-
-def sendBotAction(action):
-    if(sim is not None):
-        entityIdsToAction = []
-        for entity in sim.board.entities:
-            if entity.boardPiece == simulator.BoardPiece.Bot:
-                entityIdsToAction.append(simulator.EntityAction(id=entity.id,action=action))
-        url = 'http://127.0.0.1:5000/simulator/tick'
-        jsonData = simulator.CustomJSONEncoder().encode(simulator.TickRequest(entityIdsToAction=entityIdsToAction))
-        print('posting to ' + url + ' json: ' + str(jsonData))
-        try:
-            r = requests.post(url, json=jsonData)
-            print('received back: ' + str(r.json()))
-        except Exception as e:
-            print(e)
-            pass
-
-def sendNextGame():
-    if(sim is not None):
-        url = 'http://127.0.0.1:5000/simulator/new'
-        print('posting to ' + url)
-        try:
-            r = requests.post(url)
-        except Exception as e:
-            pass
+    return botActions.getSim()
 
 def processInput(events): 
    for event in events: 
@@ -74,15 +40,15 @@ def processInput(events):
             draw(sim)
         if(interactiveMode and event.type == pygame.KEYDOWN and sim is not None):
             if(event.key == pygame.K_DOWN):
-                sendBotAction(simulator.Action.MoveDown)
+                botActions.sendMoveDown()
             if(event.key == pygame.K_UP):
-                sendBotAction(simulator.Action.MoveUp)
+                botActions.sendMoveUp()
             if(event.key == pygame.K_LEFT):
-                sendBotAction(simulator.Action.MoveLeft)
+                botActions.sendMoveLeft()
             if(event.key == pygame.K_RIGHT):
-                sendBotAction(simulator.Action.MoveRight)
+                botActions.sendMoveRight()
             if(event.key == pygame.K_r):
-                sendNextGame()
+                botActions.sendNextGame()
 
 entityToImage = dict({
     simulator.BoardPiece.Enemy:ENEMIES,
