@@ -49,7 +49,9 @@ def sendBotAction(action):
         print('posting to ' + url + ' json: ' + str(jsonData))
         try:
             r = requests.post(url, json=jsonData)
+            print('received back: ' + str(r.json()))
         except Exception as e:
+            print(e)
             pass
 
 def sendNextGame():
@@ -88,7 +90,7 @@ entityToImage = dict({
 })
 entityToColor = dict({
     simulator.BoardPiece.Bot:PLAYER_COLOR,
-    simulator.BoardPiece.HomeBase:HOME_BASE_COLOR,
+    simulator.BoardPiece.BotBase:HOME_BASE_COLOR,
     simulator.BoardPiece.EnemyBase:ENEMY_BASE_COLOR
 })
 

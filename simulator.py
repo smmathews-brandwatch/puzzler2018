@@ -12,6 +12,7 @@ class GameObject(object):
         self.__dict__.update(entries)
 
 class Action(GameObject):
+    Stay = 'stay'
     MoveUp = 'up'
     MoveDown = 'down'
     MoveLeft = 'left'
@@ -42,7 +43,7 @@ class BoardPiece(GameObject):
     Bot = 'bot'
     Enemy = 'enemy'
     Collectible = 'collectible'
-    HomeBase = 'home_base'
+    BotBase = 'bot_base'
     EnemyBase = 'enemy_base'
 
 # A customized JSON encoder that knows about your SiteConfig class
@@ -69,6 +70,11 @@ class Position(GameObject):
         else:
             self.x = fromDict['x']
             self.y = fromDict['y']
+    
+    def __eq__(self, other):
+        if isinstance(other, Position):
+            return self.x == other.x and self.y == other.y
+        return NotImplemented
 
 class Entity(GameObject):
     def __init__(self, fromDict=None, position=None, id=None, boardPiece=None, ownerId=None):
@@ -83,6 +89,11 @@ class Entity(GameObject):
             self.id = fromDict['id']
             self.boardPiece = fromDict['boardPiece']
             self.ownerId = fromDict['ownerId']
+        
+    def __eq__(self, other):
+        if isinstance(other, Entity):
+            return self.id == other.id and self.id == other.id
+        return NotImplemented
 
 class Board(GameObject):
     def __init__(self, fromDict=None, height=None, width=None, numEnemies=None, numCollectibles=None):
@@ -107,7 +118,7 @@ class Board(GameObject):
 
     def initEntities(self):
         field = []
-        field.append(BoardPiece.HomeBase)
+        field.append(BoardPiece.BotBase)
         field.append(BoardPiece.EnemyBase)
         field.append(BoardPiece.Bot)
         for _i in range(self.numEnemies):
@@ -159,22 +170,48 @@ class Simulator(GameObject):
             self.simRound = fromDict['simRound']
             self.score = fromDict['score']
     
-    def moveEntity(self, entity, vector):
+    def transfer(self, oldEntity, newEntity):
+        for otherEntity in self.board.entities:
+            if otherEntity.ownerId == oldEntity.id:
+                otherEntity.ownerId = newEntity.id
+
+    def moveEntity(self, entity, vector, entityIdToAction):
         entity.position.x += vector.x
         entity.position.y += vector.y
+        # check if entity must stay because they'd go over the edge of the board
+        if(entity.position.x > self.board.width-1 or entity.position.x < 0 or
+            entity.position.y > self.board.height-1 or entity.position.y < 0):
+            entityIdToAction.action = Action.Stay
+            entity.position.x -= vector.x
+            entity.position.y -= vector.y
+        #check if the entity is colliding with another entity
+        if(entity.boardPiece == BoardPiece.Bot or entity.boardPiece == BoardPiece.Enemy):
+            for otherEntity in self.board.entities:
+                if otherEntity != entity and otherEntity.position == entity.position:
+                    # check if the bot or enemy are now touching a base or collectible
+                    if(otherEntity.boardPiece == BoardPiece.Collectible):
+                        otherEntity.ownerId = entity.id
+                    else:
+                        entityIdToAction.action = Action.Stay
+                        entity.position.x -= vector.x
+                        entity.position.y -= vector.y
+                        if((otherEntity.boardPiece == BoardPiece.EnemyBase and entity.boardPiece == BoardPiece.Enemy) or
+                            (otherEntity.boardPiece == BoardPiece.BotBase and entity.boardPiece == BoardPiece.Bot)):
+                            #transfer any collectibles from this enemy to home base
+                            self.transfer(entity,otherEntity)
 
     def tickAll(self, entityIdsToAction):
         for entityIdToAction in entityIdsToAction:
             for entity in self.board.entities:
                     if(entity.id == entityIdToAction.id):
                         if(entityIdToAction.action == Action.MoveUp):
-                            self.moveEntity(entity, Position(x=0, y=-1))
+                            self.moveEntity(entity, Position(x=0, y=-1), entityIdToAction)
                         elif(entityIdToAction.action == Action.MoveDown):
-                            self.moveEntity(entity, Position(x=0, y=1))
+                            self.moveEntity(entity, Position(x=0, y=1), entityIdToAction)
                         elif(entityIdToAction.action == Action.MoveLeft):
-                            self.moveEntity(entity, Position(x=-1, y=0))
+                            self.moveEntity(entity, Position(x=-1, y=0), entityIdToAction)
                         elif(entityIdToAction.action == Action.MoveRight):
-                            self.moveEntity(entity, Position(x=1, y=0))
+                            self.moveEntity(entity, Position(x=1, y=0), entityIdToAction)
                         break
         self.frame += 1
 
