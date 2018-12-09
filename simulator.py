@@ -201,7 +201,7 @@ class Simulator(GameObject):
         #check if the entity is colliding with another entity
         if(entity.boardPiece == BoardPiece.Bot or entity.boardPiece == BoardPiece.Enemy):
             for otherEntity in self.board.entities:
-                if otherEntity != entity and otherEntity.position == entity.position:
+                if otherEntity.ownerId is None and otherEntity != entity and otherEntity.position == entity.position:
                     # check if the bot or enemy are now touching a base or collectible
                     if(otherEntity.boardPiece == BoardPiece.Collectible):
                         otherEntity.ownerId = entity.id
