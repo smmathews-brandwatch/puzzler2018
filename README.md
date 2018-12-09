@@ -28,6 +28,6 @@ run-visualizer
 - [X] Local Web api to control the bot
 - [X] Time limit
 - [X] Same number of collectibles, but random location and random starting position of enemies
-- [ ] Score = bot collected collectibles - enemy collected collectibles
-- [ ] Simulation mode, 1000 games run. Record min score, max score, average score, and for each the random seed. 
+- [X] Score = bot collected collectibles - enemy collected collectibles
+- [X] Simulation mode, 1000 games run. Record all scores. 
 - [ ] 5 collectible carrying capacity, then must touch your base
