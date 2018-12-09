@@ -1,5 +1,5 @@
-import sys, pygame, simulator, requests, simulator, time
-from flask import json
+import sys, pygame, simulator, requests, simulator, time, flask
+from flask.json import jsonify
 pygame.init()
 
 # Define some colors
@@ -20,10 +20,16 @@ pygame.display.set_caption("PUZZLER 2018")
 screen = pygame.display.set_mode(size)
 
 pygame.font.init()
-myfont = pygame.font.SysFont('Comic Sans MS', 30)
+fontSize = 30
+myfont = pygame.font.SysFont('Comic Sans MS', fontSize)
 
 neverDrawn = True
 sim = None
+interactiveMode = False
+
+app = flask.Flask(__name__, static_folder=None)
+app.env = 'development'
+app.json_encoder = simulator.CustomJSONEncoder
 
 def getNewSim():
     url = 'http://127.0.0.1:5000/simulator/state'
@@ -37,10 +43,51 @@ def getNewSim():
         pass
     return None
 
+def sendBotAction(action):
+    if(sim is not None):
+        entityIdsToAction = []
+        for entity in sim.board.entities:
+            if entity.boardPiece == simulator.BoardPiece.Bot:
+                entityIdsToAction.append(simulator.EntityAction(id=entity.id,action=action))
+        url = 'http://127.0.0.1:5000/simulator/tick'
+        with app.app_context():
+            json = jsonify(simulator.TickRequest(entityIdsToAction=entityIdsToAction))
+            print('posting to ' + url + ' json: ' + str(json.get_json()))
+            try:
+                r = requests.post(url, json=json.get_json())
+            except Exception as e:
+                pass
+
+def sendNextGame():
+    if(sim is not None):
+        url = 'http://127.0.0.1:5000/simulator/new'
+        with app.app_context():
+            print('posting to ' + url)
+            try:
+                r = requests.post(url)
+            except Exception as e:
+                pass
+
 def processInput(events): 
    for event in events: 
-      if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE)  or (event.type == pygame.QUIT): 
-         sys.exit(0)
+        if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE)  or (event.type == pygame.QUIT): 
+            sys.exit(0)
+        elif(event.type == pygame.KEYDOWN and event.key == pygame.K_i):
+            global interactiveMode
+            interactiveMode = not interactiveMode
+            print("interactive mode is: " + ("ON"  if interactiveMode else "OFF"))
+            draw(sim)
+        if(interactiveMode and event.type == pygame.KEYDOWN and sim is not None):
+            if(event.key == pygame.K_DOWN):
+                sendBotAction(simulator.Action.MoveDown)
+            if(event.key == pygame.K_UP):
+                sendBotAction(simulator.Action.MoveUp)
+            if(event.key == pygame.K_LEFT):
+                sendBotAction(simulator.Action.MoveLeft)
+            if(event.key == pygame.K_RIGHT):
+                sendBotAction(simulator.Action.MoveRight)
+            if(event.key == pygame.K_r):
+                sendNextGame()
 
 entityToImage = dict({
     simulator.BoardPiece.Enemy:ENEMIES,
@@ -53,40 +100,43 @@ entityToColor = dict({
 })
 
 def draw(sim):
+    if(sim == None):
+        return
     global neverDrawn
     neverDrawn = False
     screen.fill(BACKGROUND_COLOR)
-    if sim == None:
-        textsurface = myfont.render('connecting...', True, RED)
+    fontMargin = 0
+    if(interactiveMode):
+        textsurface = myfont.render('MODE: INTERACTIVE', True, RED)
         screen.blit(textsurface,(0,0))
-    else:
-        pieceWidth = width/sim.board.width - 2*MARGIN
-        pieceHeight = height/sim.board.height - 2*MARGIN
-        for x in range(sim.board.width):
-            for y in range(sim.board.height):
-                pygame.draw.rect(screen,
-                                EMPTY_COLOR,
-                                [(pieceWidth + 2*MARGIN) * x + MARGIN,
-                                (pieceHeight + 2*MARGIN) * y + MARGIN,
-                                pieceWidth,
-                                pieceHeight])
-        for entity in sim.board.entities:
-            if(entity.boardPiece in entityToColor):
-                pygame.draw.rect(screen,
-                    entityToColor[entity.boardPiece],
-                    [(pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
-                    (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN,
-                    pieceWidth,
-                    pieceHeight])
-            else:
-                images = entityToImage[entity.boardPiece]
-                image = images[entity.id % len(images)]
-                image = pygame.transform.scale(image, (int(pieceWidth),int(pieceHeight)))
-                rect = pygame.Rect((pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
-                    (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN,
-                    pieceWidth,
-                    pieceHeight)
-                screen.blit(image, rect)
+        fontMargin = fontSize
+    pieceWidth = width/sim.board.width - 2*MARGIN
+    pieceHeight = (height-fontMargin)/sim.board.height - 2*MARGIN
+    for x in range(sim.board.width):
+        for y in range(sim.board.height):
+            pygame.draw.rect(screen,
+                            EMPTY_COLOR,
+                            [(pieceWidth + 2*MARGIN) * x + MARGIN,
+                            (pieceHeight + 2*MARGIN) * y + MARGIN + fontMargin,
+                            pieceWidth,
+                            pieceHeight])
+    for entity in sim.board.entities:
+        if(entity.boardPiece in entityToColor):
+            pygame.draw.rect(screen,
+                entityToColor[entity.boardPiece],
+                [(pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
+                (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN + fontMargin,
+                pieceWidth,
+                pieceHeight])
+        else:
+            images = entityToImage[entity.boardPiece]
+            image = images[entity.id % len(images)]
+            image = pygame.transform.scale(image, (int(pieceWidth),int(pieceHeight)))
+            rect = pygame.Rect((pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
+                (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN + fontMargin,
+                pieceWidth,
+                pieceHeight)
+            screen.blit(image, rect)
     pygame.display.flip()
 
 FPS = 60

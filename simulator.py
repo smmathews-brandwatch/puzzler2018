@@ -28,10 +28,10 @@ class EntityAction(GameObject):
             self.action = fromDict['action']
 
 class TickBase(GameObject):
-    def __init__(self, fromDict=None, entityIdsToAction=[]):
+    def __init__(self, fromDict=None, entityIdsToAction=None):
         super().__init__()
         if(fromDict == None):
-            self.entityIdsToAction = entityIdsToAction
+            self.entityIdsToAction = entityIdsToAction if entityIdsToAction is not None else []
         else:
             self.entityIdsToAction = []
             for entityIdToAction in fromDict['entityIdsToAction']:
@@ -155,19 +155,24 @@ class Simulator(GameObject):
             self.frame = fromDict['frame']
             self.simRound = fromDict['simRound']
     
+    def moveEntity(self, entity, vector):
+        entity.position.x += vector.x
+        entity.position.y += vector.y
+
     def tickAll(self, entityIdsToAction):
         for entityIdToAction in entityIdsToAction:
             for entity in self.board.entities:
                     if(entity.id == entityIdToAction.id):
-                        entity.position
                         if(entityIdToAction.action == Action.MoveUp):
-                            pass
+                            self.moveEntity(entity, Position(x=0, y=-1))
                         elif(entityIdToAction.action == Action.MoveDown):
-                            pass
+                            self.moveEntity(entity, Position(x=0, y=1))
                         elif(entityIdToAction.action == Action.MoveLeft):
-                            pass
+                            self.moveEntity(entity, Position(x=-1, y=0))
                         elif(entityIdToAction.action == Action.MoveRight):
-                            pass
+                            self.moveEntity(entity, Position(x=1, y=0))
+                        break
+        self.frame += 1
 
     def handleTickRequest(self, tickRequest):
         badIds = set()
@@ -189,17 +194,19 @@ class Simulator(GameObject):
         if(len(badIds) > 0 or len(duplicateIds) > 0):
             return BadTick(badIds=badIds, duplicateIds=duplicateIds)
         response = TickResponse()
+
         response.entityIdsToAction.extend(tickRequest.entityIdsToAction)
+        print(len(response.entityIdsToAction))
         # TODO: figure out the enemies part of the tick
         self.tickAll(response.entityIdsToAction)
         return TickResponse(entityIdsToAction=response.entityIdsToAction)
 
 class TickResponse(TickBase):
-    def __init__(self, fromDict=None, entityIdsToAction=[]):
+    def __init__(self, fromDict=None, entityIdsToAction=None):
         super().__init__(fromDict=fromDict, entityIdsToAction=entityIdsToAction)
 
 class TickRequest(TickBase):
-    def __init__(self, fromDict=None, entityIdsToAction=[]):
+    def __init__(self, fromDict=None, entityIdsToAction=None):
         super().__init__(fromDict=fromDict, entityIdsToAction=entityIdsToAction)
 
 class BadTick(GameObject):
