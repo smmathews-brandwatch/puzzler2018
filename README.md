@@ -25,8 +25,8 @@ run-visualizer
 ## Requested Feature List
 - [ ] Ability to demo top implementations
 - [X] Run simulator/visualizer locally
-- [ ] Local Web api to control the bot
-- [ ] Time limit
+- [X] Local Web api to control the bot
+- [X] Time limit
 - [X] Same number of collectibles, but random location and random starting position of enemies
 - [ ] Score = bot collected collectibles - enemy collected collectibles
 - [ ] Simulation mode, 1000 games run. Record min score, max score, average score, and for each the random seed. 

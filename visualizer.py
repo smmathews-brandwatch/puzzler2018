@@ -105,19 +105,21 @@ def draw(sim):
     global neverDrawn
     neverDrawn = False
     screen.fill(BACKGROUND_COLOR)
-    fontMargin = 0
+    textMargin = fontSize
+    textsurface = myfont.render('round:' + str(sim.simRound) + ' frame:' + str(sim.frame) + ' score:' + str(sim.score), True, RED)
+    screen.blit(textsurface,(0,0))
     if(interactiveMode):
         textsurface = myfont.render('MODE: INTERACTIVE', True, RED)
-        screen.blit(textsurface,(0,0))
-        fontMargin = fontSize
+        screen.blit(textsurface,(0,fontSize))
+        textMargin += fontSize
     pieceWidth = width/sim.board.width - 2*MARGIN
-    pieceHeight = (height-fontMargin)/sim.board.height - 2*MARGIN
+    pieceHeight = (height-textMargin)/sim.board.height - 2*MARGIN
     for x in range(sim.board.width):
         for y in range(sim.board.height):
             pygame.draw.rect(screen,
                             EMPTY_COLOR,
                             [(pieceWidth + 2*MARGIN) * x + MARGIN,
-                            (pieceHeight + 2*MARGIN) * y + MARGIN + fontMargin,
+                            (pieceHeight + 2*MARGIN) * y + MARGIN + textMargin,
                             pieceWidth,
                             pieceHeight])
     for entity in sim.board.entities:
@@ -125,7 +127,7 @@ def draw(sim):
             pygame.draw.rect(screen,
                 entityToColor[entity.boardPiece],
                 [(pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
-                (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN + fontMargin,
+                (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN + textMargin,
                 pieceWidth,
                 pieceHeight])
         else:
@@ -133,7 +135,7 @@ def draw(sim):
             image = images[entity.id % len(images)]
             image = pygame.transform.scale(image, (int(pieceWidth),int(pieceHeight)))
             rect = pygame.Rect((pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
-                (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN + fontMargin,
+                (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN + textMargin,
                 pieceWidth,
                 pieceHeight)
             screen.blit(image, rect)

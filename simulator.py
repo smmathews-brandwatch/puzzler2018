@@ -140,7 +140,7 @@ class Score(GameObject):
 class Simulator(GameObject):
     def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=2, numCollectibles=10, simRound=0):
         super().__init__()
-        self.maxFrames = 1800
+        self.maxFrames = 200
         if(fromDict == None):
             if(seed == None):
                 seed = int(round(time.time() * 1000 * 1000))
@@ -149,11 +149,13 @@ class Simulator(GameObject):
             self.board = Board(height=height, width=width, numEnemies=numEnemies, numCollectibles=numCollectibles)
             self.frame = 0
             self.simRound = simRound
+            self.score = 0
         else:
             self.randomSeed = fromDict['randomSeed']
             self.board = Board(fromDict=fromDict['board'])
             self.frame = fromDict['frame']
             self.simRound = fromDict['simRound']
+            self.score = fromDict['score']
     
     def moveEntity(self, entity, vector):
         entity.position.x += vector.x
@@ -196,14 +198,19 @@ class Simulator(GameObject):
         response = TickResponse()
 
         response.entityIdsToAction.extend(tickRequest.entityIdsToAction)
-        print(len(response.entityIdsToAction))
         # TODO: figure out the enemies part of the tick
         self.tickAll(response.entityIdsToAction)
         return TickResponse(entityIdsToAction=response.entityIdsToAction)
 
 class TickResponse(TickBase):
-    def __init__(self, fromDict=None, entityIdsToAction=None):
+    def __init__(self, fromDict=None, entityIdsToAction=None, simRound=None, frame=None):
         super().__init__(fromDict=fromDict, entityIdsToAction=entityIdsToAction)
+        if(fromDict==None):
+            self.simRound = simRound
+            self.frame = frame
+        else:
+            self.simRound = fromDict['simRound']
+            self.frame = fromDict['frame']
 
 class TickRequest(TickBase):
     def __init__(self, fromDict=None, entityIdsToAction=None):

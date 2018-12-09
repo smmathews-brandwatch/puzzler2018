@@ -23,6 +23,8 @@ def new():
     simulator = Simulator(simRound=simulator.simRound+1)
     return jsonify(simulator)
 
+rounds = []
+
 @app.route('/simulator/tick', methods=['POST'])
 def tick():
     botsTick = TickRequest(fromDict=request.get_json())
@@ -30,6 +32,9 @@ def tick():
     response = jsonify(result)
     if(isinstance(result,BadTick)):
         response.status_code = 400
+    if(simulator.frame >= simulator.maxFrames):
+        rounds.append(simulator)
+        new()
     return response
 
 @app.route('/simulator/state', methods=['GET'])
