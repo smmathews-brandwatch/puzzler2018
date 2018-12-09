@@ -27,7 +27,7 @@ rounds = []
 
 @app.route('/simulator/tick', methods=['POST'])
 def tick():
-    botsTick = TickRequest(fromDict=request.get_json())
+    botsTick = TickRequest(fromDict=json.loads(request.get_json()))
     result = simulator.handleTickRequest(botsTick)
     response = jsonify(result)
     if(isinstance(result,BadTick)):

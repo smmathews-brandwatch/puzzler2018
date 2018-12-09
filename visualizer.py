@@ -1,5 +1,4 @@
-import sys, pygame, simulator, requests, simulator, time, flask
-from flask.json import jsonify
+import sys, pygame, simulator, requests, simulator, time, json
 pygame.init()
 
 # Define some colors
@@ -27,10 +26,6 @@ neverDrawn = True
 sim = None
 interactiveMode = False
 
-app = flask.Flask(__name__, static_folder=None)
-app.env = 'development'
-app.json_encoder = simulator.CustomJSONEncoder
-
 def getNewSim():
     url = 'http://127.0.0.1:5000/simulator/state'
     reason = 'unknown'
@@ -50,23 +45,21 @@ def sendBotAction(action):
             if entity.boardPiece == simulator.BoardPiece.Bot:
                 entityIdsToAction.append(simulator.EntityAction(id=entity.id,action=action))
         url = 'http://127.0.0.1:5000/simulator/tick'
-        with app.app_context():
-            json = jsonify(simulator.TickRequest(entityIdsToAction=entityIdsToAction))
-            print('posting to ' + url + ' json: ' + str(json.get_json()))
-            try:
-                r = requests.post(url, json=json.get_json())
-            except Exception as e:
-                pass
+        jsonData = simulator.CustomJSONEncoder().encode(simulator.TickRequest(entityIdsToAction=entityIdsToAction))
+        print('posting to ' + url + ' json: ' + str(jsonData))
+        try:
+            r = requests.post(url, json=jsonData)
+        except Exception as e:
+            pass
 
 def sendNextGame():
     if(sim is not None):
         url = 'http://127.0.0.1:5000/simulator/new'
-        with app.app_context():
-            print('posting to ' + url)
-            try:
-                r = requests.post(url)
-            except Exception as e:
-                pass
+        print('posting to ' + url)
+        try:
+            r = requests.post(url)
+        except Exception as e:
+            pass
 
 def processInput(events): 
    for event in events: 
@@ -123,22 +116,23 @@ def draw(sim):
                             pieceWidth,
                             pieceHeight])
     for entity in sim.board.entities:
-        if(entity.boardPiece in entityToColor):
-            pygame.draw.rect(screen,
-                entityToColor[entity.boardPiece],
-                [(pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
-                (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN + textMargin,
-                pieceWidth,
-                pieceHeight])
-        else:
-            images = entityToImage[entity.boardPiece]
-            image = images[entity.id % len(images)]
-            image = pygame.transform.scale(image, (int(pieceWidth),int(pieceHeight)))
-            rect = pygame.Rect((pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
-                (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN + textMargin,
-                pieceWidth,
-                pieceHeight)
-            screen.blit(image, rect)
+        if(entity.ownerId is None):
+            if(entity.boardPiece in entityToColor):
+                    pygame.draw.rect(screen,
+                        entityToColor[entity.boardPiece],
+                        [(pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
+                        (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN + textMargin,
+                        pieceWidth,
+                        pieceHeight])
+            else:
+                images = entityToImage[entity.boardPiece]
+                image = images[entity.id % len(images)]
+                image = pygame.transform.scale(image, (int(pieceWidth),int(pieceHeight)))
+                rect = pygame.Rect((pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
+                    (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN + textMargin,
+                    pieceWidth,
+                    pieceHeight)
+                screen.blit(image, rect)
     pygame.display.flip()
 
 FPS = 60

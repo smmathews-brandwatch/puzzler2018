@@ -71,16 +71,18 @@ class Position(GameObject):
             self.y = fromDict['y']
 
 class Entity(GameObject):
-    def __init__(self, fromDict=None, position=None, id=None, boardPiece=None):
+    def __init__(self, fromDict=None, position=None, id=None, boardPiece=None, ownerId=None):
         super(Entity, self).__init__()
         if(fromDict == None):
             self.position = position
             self.id = id
             self.boardPiece = boardPiece
+            self.ownerId = ownerId
         else:
             self.position = Position(fromDict=fromDict['position'])
             self.id = fromDict['id']
             self.boardPiece = fromDict['boardPiece']
+            self.ownerId = fromDict['ownerId']
 
 class Board(GameObject):
     def __init__(self, fromDict=None, height=None, width=None, numEnemies=None, numCollectibles=None):
