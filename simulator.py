@@ -12,7 +12,6 @@ class GameObject(object):
         self.__dict__.update(entries)
 
 class Action(GameObject):
-    Stay = 'stay'
     MoveUp = 'up'
     MoveDown = 'down'
     MoveLeft = 'left'
@@ -28,7 +27,7 @@ class EntityAction(GameObject):
             self.id = fromDict['id']
             self.action = fromDict['action']
 
-class TickRequest(GameObject):
+class TickBase(GameObject):
     def __init__(self, fromDict=None, entityIdsToAction=[]):
         super().__init__()
         if(fromDict == None):
@@ -170,11 +169,11 @@ class Simulator(GameObject):
                         elif(entityIdToAction.action == Action.MoveRight):
                             pass
 
-    def tickBots(self, botsPartOfTick):
+    def handleTickRequest(self, tickRequest):
         badIds = set()
         duplicateIds = set()
         seenIds = set()
-        for entityIdToAction in botsPartOfTick.entityIdsToAction:
+        for entityIdToAction in tickRequest.entityIdsToAction:
             if entityIdToAction.id not in seenIds:
                 seenIds.add(entityIdToAction.id)
                 for entity in self.board.entities:
@@ -187,22 +186,28 @@ class Simulator(GameObject):
                     badIds.add(entityIdToAction.id)
             else:
                 duplicateIds.add(entityIdToAction.id)
-        if(len(badIds) > 0 or len(duplicateIds) > 0 or len(seenIds) > 0):
-            return BadTick(badIds=badIds, duplicateIds=duplicateIds, seenIds=seenIds)
-        allActions = []
-        allActions.extend(botsPartOfTick.entityIdsToAction)
+        if(len(badIds) > 0 or len(duplicateIds) > 0):
+            return BadTick(badIds=badIds, duplicateIds=duplicateIds)
+        response = TickResponse()
+        response.entityIdsToAction.extend(tickRequest.entityIdsToAction)
         # TODO: figure out the enemies part of the tick
-        self.tickAll(allActions)
-        return TickRequest(entityIdsToAction=allActions)
+        self.tickAll(response.entityIdsToAction)
+        return TickResponse(entityIdsToAction=response.entityIdsToAction)
+
+class TickResponse(TickBase):
+    def __init__(self, fromDict=None, entityIdsToAction=[]):
+        super().__init__(fromDict=fromDict, entityIdsToAction=entityIdsToAction)
+
+class TickRequest(TickBase):
+    def __init__(self, fromDict=None, entityIdsToAction=[]):
+        super().__init__(fromDict=fromDict, entityIdsToAction=entityIdsToAction)
 
 class BadTick(GameObject):
-    def __init__(self, fromDict=None, badIds=None, duplicateIds=None, seenIds=None):
+    def __init__(self, fromDict=None, badIds=None, duplicateIds=None):
         super().__init__()
         if(fromDict == None):
             self.badIds = badIds
             self.duplicateIds = duplicateIds
-            self.seenIds = seenIds
         else:
             self.badIds = fromDict['badIds']
             self.duplicateIds = fromDict['duplicateIds']
-            self.seenIds = fromDict['seenIds']

@@ -26,7 +26,7 @@ def new():
 @app.route('/simulator/tick', methods=['POST'])
 def tick():
     botsTick = TickRequest(fromDict=request.get_json())
-    result = simulator.tickBots(botsTick)
+    result = simulator.handleTickRequest(botsTick)
     response = jsonify(result)
     if(isinstance(result,BadTick)):
         response.status_code = 400
