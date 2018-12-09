@@ -165,9 +165,8 @@ class Score(GameObject):
             self.lost = fromDict['lost']
 
 class Simulator(GameObject):
-    def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=2, numCollectibles=10, simRound=0):
+    def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=2, numCollectibles=10, simRound=0, maxFrames=200, maxCollectibles=5):
         super().__init__()
-        self.maxFrames = 200
         if(fromDict == None):
             if(seed == None):
                 seed = int(round(time.time() * 1000 * 1000))
@@ -177,17 +176,28 @@ class Simulator(GameObject):
             self.frame = 0
             self.simRound = simRound
             self.score = self.board.calculateScore()
+            self.maxFrames = maxFrames
+            self.maxCollectibles = maxCollectibles
         else:
             self.randomSeed = fromDict['randomSeed']
             self.board = Board(fromDict=fromDict['board'])
             self.frame = fromDict['frame']
             self.simRound = fromDict['simRound']
             self.score = Score(fromDict=fromDict['score'])
+            self.maxFrames = fromDict['maxFrames']
+            self.maxCollectibles = fromDict['maxCollectibles']
     
     def transfer(self, oldEntity, newEntity):
         for otherEntity in self.board.entities:
             if otherEntity.ownerId == oldEntity.id:
                 otherEntity.ownerId = newEntity.id
+
+    def getNumCollectiblesEntityIsCarrying(self, entity):
+        num = 0
+        for otherEntity in self.board.entities:
+            if(otherEntity.ownerId == entity.id):
+                num += 1
+        return num
 
     def moveEntity(self, entity, vector, entityIdToAction):
         entity.position.x += vector.x
@@ -203,7 +213,8 @@ class Simulator(GameObject):
             for otherEntity in self.board.entities:
                 if otherEntity.ownerId is None and otherEntity != entity and otherEntity.position == entity.position:
                     # check if the bot or enemy are now touching a base or collectible
-                    if(otherEntity.boardPiece == BoardPiece.Collectible):
+                    if(otherEntity.boardPiece == BoardPiece.Collectible and self.getNumCollectiblesEntityIsCarrying(entity) < self.maxCollectibles):
+                        #check if the bot or enemy already has the max number of collectibles
                         otherEntity.ownerId = entity.id
                     else:
                         entityIdToAction.action = Action.Stay

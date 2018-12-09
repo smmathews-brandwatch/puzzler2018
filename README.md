@@ -13,13 +13,18 @@ make && make test-visualizer
 ## Run server
 this actually runs the simulation and has endpoints to control the simulation
 ```
-run-server
+make run-server
 ```
 
 ## Run visualizer
 this shows the current state of the local server's simulation by hitting the endpoints of the server
 ```
-run-visualizer
+make run-visualizer
+```
+
+## Run the default (random movement) bot
+```
+make run-base-bot
 ```
 
 ## Requested Feature List
@@ -31,4 +36,5 @@ run-visualizer
 - [X] Score = bot collected collectibles - enemy collected collectibles
 - [X] Simulation mode, 1000 games run. Record all scores. 
 - [ ] 5 collectible carrying capacity, then must touch your base
-- [ ] Base bot to be used as a template
+- [X] Base bot to be used as a template
+- [ ] Enemy bots are smart enough to win if the bot is not too smart
