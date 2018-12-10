@@ -19,7 +19,10 @@ class YourBot:
         #actionsThisRound = botActionsWrapper.sendMoveUp
         #actionsThisRound = botActionsWrapper.sendMoveLeft
         #actionsThisRound = botActionsWrapper.sendMoveRight
+        actionsThisRound = botActionsWrapper.sendStay()
         print('implement me')
+        # remove this sleep to run as fast as you can
+        time.sleep(1)
 
 if __name__ == "__main__":
     bot = YourBot()
