@@ -25,3 +25,7 @@ run-server:
 
 run-base-bot:
 	pipenv run python -m baseBot
+
+run-your-bot:
+	pipenv run python -m yourBot
+	
