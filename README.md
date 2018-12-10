@@ -79,3 +79,7 @@ make run-your-bot
 - [X] Base bot to be used as a template
 - [ ] Well understood images for all entities
 - [X] Display Leaderboard after max number of rounds
+
+## Extra Challenges for bragging rights
+1) Set simulator.ALLOW_STEALING to True. If you move in to an enemy, you'll take what they're holding. If they move in to you, they'll do likewise.
+2) Change numEnemies=2 to greater than 2.
