@@ -13,9 +13,9 @@ pipenv: https://pipenv.readthedocs.io/en/latest/
 1. There is a limit to the number of frames in a round
 1. There is a limit to the number of rounds before the final judgement
 1. Your bot is judged on the avg, high, and low of the following:
-  1. Score. This is the number of collectibles you rescued minus the number of collectibles you lost.
-  1. Rescued. This is the number of collectibles you deposited in your base.
-  1. Lost. This is the number of collectibles your enemy deposited in their base.
+   1. Score. This is the number of collectibles you rescued minus the number of collectibles you lost.
+   1. Rescued. This is the number of collectibles you deposited in your base.
+   1. Lost. This is the number of collectibles your enemy deposited in their base.
 
 ## Running
 
