@@ -43,4 +43,4 @@ make run-your-bot
 - [X] 5 collectible carrying capacity, then must touch your base
 - [X] Base bot to be used as a template
 - [ ] Well understood images for all entities
-- [ ] Display Leaderboard after max number of rounds
+- [X] Display Leaderboard after max number of rounds
