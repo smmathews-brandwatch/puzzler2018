@@ -5,7 +5,7 @@ python 3.6.1 or greater
 pipenv: https://pipenv.readthedocs.io/en/latest/
 
 ## Rules
-1. Implement your bot in yourBot.py
+1. Implement your bot anywhere you'd like using the '/simulator/tick' and '/simulator/new' endpoints. For your convenience, yourBot.py is available to give you a starting point and baseBot.py is available to see how the enemies work.
 1. The entities will execute their actions in the order they're listed in the sim.board.entities list
 1. The player's bot can't move on to a space occupied by another entity, except for a collectible the player is picking up
 1. The player can't hold up more than 5 collectibles
