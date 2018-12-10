@@ -22,9 +22,14 @@ this shows the current state of the local server's simulation by hitting the end
 make run-visualizer
 ```
 
-## Run the default (random movement) bot
+## Run the random movement bot as the player bot
 ```
-make run-base-bot
+make run-random-bot
+```
+
+## Run the lazy bot as the player bot
+```
+make run-lazy-bot
 ```
 
 ## Requested Feature List
@@ -37,6 +42,5 @@ make run-base-bot
 - [X] Simulation mode, 1000 games run. Record all scores. 
 - [X] 5 collectible carrying capacity, then must touch your base
 - [X] Base bot to be used as a template
-- [ ] Enemy bots are smart enough to win if the bot is not too smart
 - [ ] Well understood images for all entities
 - [ ] Display Leaderboard after max number of rounds

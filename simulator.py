@@ -4,6 +4,9 @@ from flask.json import JSONEncoder
 from calendar import timegm
 import time
 from enum import Enum
+import baseBot, botActions
+
+ALLOW_STEALING = False
 
 class GameObject(object):
     def __init__(self):
@@ -164,6 +167,8 @@ class Score(GameObject):
             self.rescued = fromDict['rescued']
             self.lost = fromDict['lost']
 
+EnemyBots = [baseBot.BaseBot()]
+
 class Simulator(GameObject):
     def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=2, numCollectibles=10, simRound=0, maxFrames=200, maxCollectibles=5):
         super().__init__()
@@ -220,9 +225,12 @@ class Simulator(GameObject):
                         entityIdToAction.action = Action.Stay
                         entity.position.x -= vector.x
                         entity.position.y -= vector.y
-                        if((otherEntity.boardPiece == BoardPiece.EnemyBase and entity.boardPiece == BoardPiece.Enemy) or
+                        if(ALLOW_STEALING and otherEntity.boardPiece != entity.boardPiece and (otherEntity.boardPiece == BoardPiece.Bot or otherEntity.boardPiece == BoardPiece.Enemy)):
+                            # steal the other entitie's collectibles
+                            self.transfer(otherEntity,entity)
+                        elif((otherEntity.boardPiece == BoardPiece.EnemyBase and entity.boardPiece == BoardPiece.Enemy) or
                             (otherEntity.boardPiece == BoardPiece.BotBase and entity.boardPiece == BoardPiece.Bot)):
-                            #transfer any collectibles from this enemy to home base
+                            #transfer any collectibles from this bot/enemy to base
                             self.transfer(entity,otherEntity)
 
     def tickAll(self, entityIdsToAction):
@@ -262,7 +270,16 @@ class Simulator(GameObject):
             return BadTick(badIds=badIds, duplicateIds=duplicateIds)
         response = TickResponse()
 
-        response.entityIdsToAction.extend(tickRequest.entityIdsToAction)
+        for entity in self.board.entities:
+            if entity.boardPiece == BoardPiece.Enemy:
+                enemyBotsActions = botActions.SimulatorBot(self, response.entityIdsToAction, entity.id)
+                eb = EnemyBots[entity.id % len(EnemyBots)]
+                eb.doAction(enemyBotsActions)
+            elif entity.boardPiece == BoardPiece.Bot:
+                for requestAction in tickRequest.entityIdsToAction:
+                    if(requestAction.id == entity.id):
+                        response.entityIdsToAction.append(requestAction)
+                        break
         # TODO: figure out the enemies part of the tick
         self.tickAll(response.entityIdsToAction)
         return TickResponse(entityIdsToAction=response.entityIdsToAction)

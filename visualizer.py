@@ -26,8 +26,10 @@ neverDrawn = True
 sim = None
 interactiveMode = False
 
+networkBot = botActions.NetworkBot()
+
 def getNewSim():
-    return botActions.getSim()
+    return networkBot.getSim()
 
 def processInput(events): 
    for event in events: 
@@ -40,15 +42,15 @@ def processInput(events):
             draw(sim)
         if(interactiveMode and event.type == pygame.KEYDOWN and sim is not None):
             if(event.key == pygame.K_DOWN):
-                botActions.sendMoveDown()
+                networkBot.sendMoveDown()
             if(event.key == pygame.K_UP):
-                botActions.sendMoveUp()
+                networkBot.sendMoveUp()
             if(event.key == pygame.K_LEFT):
-                botActions.sendMoveLeft()
+                networkBot.sendMoveLeft()
             if(event.key == pygame.K_RIGHT):
-                botActions.sendMoveRight()
+                networkBot.sendMoveRight()
             if(event.key == pygame.K_r):
-                botActions.sendNextGame()
+                networkBot.sendNextGame()
 
 entityToImage = dict({
     simulator.BoardPiece.Enemy:ENEMIES,
