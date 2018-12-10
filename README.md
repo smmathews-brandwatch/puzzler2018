@@ -22,14 +22,14 @@ this shows the current state of the local server's simulation by hitting the end
 make run-visualizer
 ```
 
-## Run the random movement bot as the player bot
+## Run the enemy random movement bot as the player bot
 ```
-make run-random-bot
+make run-base-bot
 ```
 
-## Run the lazy bot as the player bot
+## Run your own bot (see yourBot.py to implement. By default will just print 'implement me')
 ```
-make run-lazy-bot
+make run-your-bot
 ```
 
 ## Requested Feature List
