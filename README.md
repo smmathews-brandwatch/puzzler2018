@@ -1,4 +1,4 @@
-# puzzler2018
+# Puzzler 2018
 
 ## Requirements
 python 3.6.1 or greater
@@ -31,11 +31,30 @@ this actually runs the simulation and has endpoints to control the simulation
 make run-server
 ```
 
+### Print routes
+print all available endpoints
+```
+make print-routes
+```
+At the time of this writing, that was:
+Endpoint | Methods | Rule
+-------- | ------- | ----------------
+health | GET | /
+new | POST | /simulator/new
+scores | GET | /roundScores
+state | GET | /simulator/state
+tick | POST | /simulator/tick
+
 ### Run visualizer
 this shows the current state of the local server's simulation by hitting the endpoints of the server
 ```
 make run-visualizer
 ```
+
+#### Interactive Mode
+In addition to visualizing the current state of the simulator (and ending score summary), the visualizer can be used to interact with the server for testing. Press 'i' to toggle interactive mode
+* Use the arrow keys to send a tick with all player bots going in that indicative direction. This uses the '/simulator/tick' endpoint.
+* Use the 'r' button to go to the next round. This uses the '/simulator/new' endpoint
 
 ### Run the enemy random movement bot as the player bot
 ```
