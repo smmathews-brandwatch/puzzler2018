@@ -38,7 +38,7 @@ make print-routes
 ```
 At the time of this writing, that was:
 Endpoint | Methods | Rule
--------- | ------- | ----------------
+-------- | ------- | ----
 health | GET | /
 new | POST | /simulator/new
 scores | GET | /roundScores
