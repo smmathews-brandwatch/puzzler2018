@@ -37,6 +37,7 @@ print all available endpoints
 make print-routes
 ```
 At the time of this writing, that was:
+
 Endpoint | Methods | Rule
 -------- | ------- | ----
 health | GET | /
