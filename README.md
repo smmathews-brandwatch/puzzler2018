@@ -1,8 +1,8 @@
 # Puzzler 2018
 
 ## Requirements
-python 3.6.1 or greater
-pipenv: https://pipenv.readthedocs.io/en/latest/
+* python 3.6.1 or greater
+* pipenv: https://pipenv.readthedocs.io/en/latest/
 
 ## Rules
 1. Implement your bot anywhere you'd like using the 'http://127.0.0.1/simulator/tick' endpoint and (optionally) the 'http://127.0.0.1/simulator/new' endpoint. For your convenience, yourBot.py is available to give you a starting point and baseBot.py is available to see how the enemies work.
