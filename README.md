@@ -73,6 +73,9 @@ make run-base-bot
 make run-your-bot
 ```
 
+## Swagger Editor
+https://editor.swagger.io/?url=https://raw.githubusercontent.com/smmathews-bw-boston/puzzler2018/master/swagger/swagger.yaml
+
 ## Requested Feature List
 - [ ] Ability to demo top implementations
 - [X] Run simulator/visualizer locally
