@@ -1,0 +1,180 @@
+swagger: "2.0"
+info:
+  description: "Control your bot. Collect. Store. Win."
+  version: "1.0.0"
+  title: "Puzzler 2018"
+host: "127.0.0.1:5000"
+basePath: "/"
+tags:
+- name: "simulator"
+  description: "Everything about the current round's simulation"
+- name: "scores"
+  description: "The aggregated scores across all rounds"
+schemes:
+- "http"
+paths:
+  /roundScores:
+    get:
+      tags:
+      - "scores"
+      summary: "get all scores for all finished rounds"
+      operationId: "getRoundScores"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "list of all finished round's scores"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Score"
+  /simulator/new:
+    post:
+      tags:
+      - "simulator"
+      summary: "record current score and skip to the next round"
+      responses:
+        200:
+          description: "successful operation"
+  /simulator/state:
+    get:
+      tags:
+      - "simulator"
+      summary: "Get the current state of the simulator"
+      operationId: "getSimulatorState"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "object"
+            items:
+              $ref: "#/definitions/Simulator"
+        400:
+          description: "Bad tick (duplicated or invalid ids)"
+  /simulator/tick:
+    post:
+      tags:
+      - "simulator"
+      summary: "specify the bot's action for this frame"
+      operationId: "postSimulatorTick"
+      parameters:
+        - in: body
+          name: actions
+          description: One or more for action each bot.
+          schema:
+            $ref: "#/definitions/EntityAction"  
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Simulator"
+        400:
+          description: "Bad tick (duplicated or invalid ids)"
+          schema:
+            type: "object"
+            properties:
+              badIds:
+                type: "array"
+                items:
+                  type: "integer"
+              duplicateIds:
+                type: "array"
+                items:
+                  type: "integer"
+definitions:
+  Score:
+    type: "object"
+    properties:
+      rescued:
+        type: "integer"
+        format: "int32"
+        example: 0
+      lost:
+        type: "integer"
+        format: "int32"
+        example: 0
+  Action:
+    type: "string"
+    enum:
+      - stay
+      - up
+      - down
+      - left
+      - right
+  BoardPiece:
+    type: "string"
+    enum:
+      - bot
+      - enemy
+      - collectible
+      - bot_base
+      - enemy_base
+  EntityAction:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      action:
+        type: "string"
+        $ref: '#/definitions/Action'
+  Entity:
+    type: "object"
+    properties:
+      boardPiece:
+        type: "string"
+        $ref: '#/definitions/BoardPiece'
+      id:
+        type: "object"
+      ownerId:
+        type: "integer"
+      position: 
+        type: "object"
+        properties:
+          x: 
+            type: "integer"
+          y: 
+            type: "integer"
+  Simulator:
+    type: "object"
+    properties:
+      board:
+        type: "object"
+        properties:
+          entities:
+            type: "array"
+            items:
+              $ref: "#/definitions/Entity"
+          height:
+            type: "integer"
+            example: 10
+          numCollectibles:
+            type: "integer"
+            example: 10
+          numEnemies:
+            type: "integer"
+            example: 2
+          width:
+            type: "integer"
+            example: 10
+      frame:
+        type: "integer"
+        example: 50
+      maxCollectibles: 
+        type: "integer"
+        example: 5
+        description: "The maximum number of collectibles a bot can hold at a time."
+      maxFrames: 
+        type: "integer"
+        description: "After this many frames, the next round will automatically start."
+      randomSeed: 
+        type: "integer"
+      score:
+        $ref: "#/definitions/Score"
+      simRound: 
+        type: "integer"
