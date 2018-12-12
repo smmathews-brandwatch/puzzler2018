@@ -1,4 +1,4 @@
-import sys, simulator, requests, simulator, time, json, botActions, server
+import sys, simulator, requests, simulator, time, json
 
 class NetworkBot:
     def getScores(self):
@@ -35,7 +35,7 @@ class NetworkBot:
                 if entity.boardPiece == simulator.BoardPiece.Bot:
                     entityIdsToAction.append(simulator.EntityAction(id=entity.id,action=action))
             url = 'http://127.0.0.1:5000/simulator/tick'
-            jsonData = server.CustomJSONEncoder().encode(simulator.TickRequest(entityIdsToAction=entityIdsToAction))
+            jsonData = simulator.CustomJSONEncoder().encode(simulator.TickRequest(entityIdsToAction=entityIdsToAction))
             print('posting to ' + url + ' json: ' + str(jsonData))
             try:
                 r = requests.post(url, json=jsonData)

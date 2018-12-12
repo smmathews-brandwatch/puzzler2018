@@ -4,21 +4,6 @@ from simulator import *
 import json
 import logging
 
-# A customized JSON encoder that knows about your SiteConfig class
-class CustomJSONEncoder(JSONEncoder):
-    item_separator = ','
-    key_separator = ':'
-    def default(self, obj):
-        if isinstance(obj, GameObject):
-            return obj.__dict__
-        try:
-            iterable = iter(o)
-        except TypeError:
-            pass
-        else:
-            return list(iterable)
-        return JSONEncoder.default(self, obj)
-
 app = Flask(__name__, static_folder=None)
 app.env = 'development'
 app.json_encoder = CustomJSONEncoder

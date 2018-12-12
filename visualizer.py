@@ -1,4 +1,4 @@
-import sys, pygame, simulator, requests, simulator, time, json, botActions, server
+import sys, pygame, simulator, requests, simulator, time, json, botActions
 pygame.init()
 
 # Define some colors
@@ -128,7 +128,7 @@ def draw(sim):
                 screen.blit(image, rect)
     pygame.display.flip()
 
-FPS = 60
+FPS = 30
 clock = pygame.time.Clock() # Create a clock object
 
 while 1:
