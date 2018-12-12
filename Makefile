@@ -1,7 +1,7 @@
+
 # anaconda requires the use of pythonw for pygame, so check for that
 pythonType=python
-VER=$(shell python --version 2>&1)
-ifneq "$(findstring Anaconda, $(VER))" ""
+ifneq (, $(shell which pythonw))
 pythonType=pythonw
 endif
 
