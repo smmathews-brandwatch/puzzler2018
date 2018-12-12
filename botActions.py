@@ -1,4 +1,4 @@
-import sys, simulator, requests, simulator, time, json, botActions
+import sys, simulator, requests, simulator, time, json, botActions, server
 
 class NetworkBot:
     def getScores(self):

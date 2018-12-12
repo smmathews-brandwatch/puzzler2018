@@ -83,7 +83,7 @@ make run-your-bot
 - [X] Simulation mode, 1000 games run. Record all scores. 
 - [X] 5 collectible carrying capacity, then must touch your base
 - [X] Base bot to be used as a template
-- [ ] Well understood images for all entities
+- [X] Well (ish) understood images for all entities
 - [X] Display Leaderboard after max number of rounds
 
 ## Extra Challenges for bragging rights
