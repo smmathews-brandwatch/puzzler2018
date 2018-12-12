@@ -6,6 +6,7 @@ import time
 from enum import Enum
 import baseBot, botActions
 
+ALL_ROUNDS_DONE = "all rounds done"
 ALLOW_STEALING = False
 
 class GameObject(object):
@@ -48,21 +49,6 @@ class BoardPiece(GameObject):
     Collectible = 'collectible'
     BotBase = 'bot_base'
     EnemyBase = 'enemy_base'
-
-# A customized JSON encoder that knows about your SiteConfig class
-class CustomJSONEncoder(JSONEncoder):
-    item_separator = ','
-    key_separator = ':'
-    def default(self, obj):
-        if isinstance(obj, GameObject):
-            return obj.__dict__
-        try:
-            iterable = iter(o)
-        except TypeError:
-            pass
-        else:
-            return list(iterable)
-        return JSONEncoder.default(self, obj)
 
 class Position(GameObject):
     def __init__(self, fromDict=None, x=None, y=None):
@@ -170,7 +156,7 @@ class Score(GameObject):
 EnemyBots = [baseBot.BaseBot()]
 
 class Simulator(GameObject):
-    def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=2, numCollectibles=10, simRound=0, maxFrames=200, maxCollectibles=5):
+    def __init__(self, fromDict=None, seed=None, height=10, width=10, numEnemies=2, numCollectibles=10, simRound=0, maxFrames=100, maxCollectibles=5):
         super().__init__()
         if(fromDict == None):
             if(seed == None):

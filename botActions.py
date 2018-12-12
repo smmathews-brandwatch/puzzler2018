@@ -1,15 +1,30 @@
 import sys, simulator, requests, simulator, time, json, botActions
 
 class NetworkBot:
+    def getScores(self):
+        url = 'http://127.0.0.1:5000/roundScores'
+        try:
+            r = requests.get(url)
+            if(r.status_code==200):
+                scores = []
+                for score in r.json():
+                    scores.append(simulator.Score(fromDict=score))
+                return scores
+        except Exception as e:
+            print(e)
+        return None
+
     def getSim(self):
         url = 'http://127.0.0.1:5000/simulator/state'
         try:
             r = requests.get(url)
             if(r.status_code==200):
+                if(simulator.ALL_ROUNDS_DONE == r.text):
+                    return simulator.ALL_ROUNDS_DONE
                 sim = simulator.Simulator(fromDict=r.json())
                 return sim
-        except:
-            pass
+        except Exception as e:
+            print(e)
         return None
 
     def sendBotAction(self, action):
@@ -20,14 +35,13 @@ class NetworkBot:
                 if entity.boardPiece == simulator.BoardPiece.Bot:
                     entityIdsToAction.append(simulator.EntityAction(id=entity.id,action=action))
             url = 'http://127.0.0.1:5000/simulator/tick'
-            jsonData = simulator.CustomJSONEncoder().encode(simulator.TickRequest(entityIdsToAction=entityIdsToAction))
+            jsonData = server.CustomJSONEncoder().encode(simulator.TickRequest(entityIdsToAction=entityIdsToAction))
             print('posting to ' + url + ' json: ' + str(jsonData))
             try:
                 r = requests.post(url, json=jsonData)
                 print('received back: ' + str(r.json()))
             except Exception as e:
                 print(e)
-                pass
 
     def sendStay(self):
         self.sendBotAction(simulator.Action.Stay)
@@ -44,6 +58,16 @@ class NetworkBot:
     def sendMoveRight(self):
         self.sendBotAction(simulator.Action.MoveRight)
 
+    def sendEndAllRounds(self):
+        sim = self.getSim()
+        if(sim is not None):
+            url = 'http://127.0.0.1:5000/endAllRounds'
+            print('posting to ' + url)
+            try:
+                r = requests.post(url)
+            except Exception as e:
+                print(e)
+
     def sendNextGame(self):
         sim = self.getSim()
         if(sim is not None):
@@ -52,7 +76,7 @@ class NetworkBot:
             try:
                 r = requests.post(url)
             except Exception as e:
-                pass
+                print(e)
 
 class SimulatorBot:
     def __init__(self, sim, entityIdsToAction, id):

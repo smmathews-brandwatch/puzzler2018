@@ -4,6 +4,21 @@ from simulator import *
 import json
 import logging
 
+# A customized JSON encoder that knows about your SiteConfig class
+class CustomJSONEncoder(JSONEncoder):
+    item_separator = ','
+    key_separator = ':'
+    def default(self, obj):
+        if isinstance(obj, GameObject):
+            return obj.__dict__
+        try:
+            iterable = iter(o)
+        except TypeError:
+            pass
+        else:
+            return list(iterable)
+        return JSONEncoder.default(self, obj)
+
 app = Flask(__name__, static_folder=None)
 app.env = 'development'
 app.json_encoder = CustomJSONEncoder
@@ -16,18 +31,25 @@ log.setLevel(logging.ERROR)
 def health():
     return 'Your server is running'
 
+curRounds = 0
+maxRounds = 100
+
 # Start a new simulation, results of the current simulation will be treated as final
 @app.route('/simulator/new', methods=['POST'])
 def new():
     global simulator
     roundScores.append(simulator.score)
-    simulator = Simulator(simRound=simulator.simRound+1)
-    return jsonify(simulator)
+    if(len(roundScores) < maxRounds):
+        simulator = Simulator(simRound=simulator.simRound+1)
+        return jsonify(simulator)
+    return ALL_ROUNDS_DONE
 
 roundScores = []
 
 @app.route('/simulator/tick', methods=['POST'])
 def tick():
+    if(len(roundScores) >= maxRounds):
+        return ALL_ROUNDS_DONE
     botsTick = TickRequest(fromDict=json.loads(request.get_json()))
     result = simulator.handleTickRequest(botsTick)
     response = jsonify(result)
@@ -41,8 +63,15 @@ def tick():
 def scores():
     return jsonify(roundScores)
 
+@app.route('/endAllRounds', methods=['POST'])
+def endAllRounds():
+    global maxRounds
+    maxRounds = len(roundScores)
+
 @app.route('/simulator/state', methods=['GET'])
 def state():
+    if(len(roundScores) >= maxRounds):
+        return ALL_ROUNDS_DONE
     global simulator
     return jsonify(simulator)
 

@@ -1,4 +1,4 @@
-import sys, pygame, simulator, requests, simulator, time, json, botActions
+import sys, pygame, simulator, requests, simulator, time, json, botActions, server
 pygame.init()
 
 # Define some colors
@@ -54,6 +54,45 @@ def processInput(events):
                 networkBot.sendMoveRight()
             if(event.key == pygame.K_r):
                 networkBot.sendNextGame()
+            if(event.key == pygame.K_e):
+                networkBot.sendEndAllRounds()
+
+def drawLeaderboard():
+    scores = networkBot.getScores()
+    if(scores == None):
+        return False
+    screen.fill(BACKGROUND_COLOR)
+    rounds = len(scores)
+    floatRounds = float(rounds)
+    avgScore = 0.0
+    highScore = 0
+    lowScore = 11
+    avgRescued = 0.0
+    mostRescued = 0
+    leastRescued = 11
+    avgLost = 0.0
+    mostLost = 0
+    leastLost = 11
+    for score in scores:
+        pointScore = score.rescued - score.lost
+        highScore = max(highScore,pointScore)
+        lowScore = min(lowScore,pointScore)
+        avgScore += float(pointScore)/floatRounds
+        mostRescued = max(mostRescued,score.rescued)
+        leastRescued = min(lowScore,score.rescued)
+        avgRescued += float(score.rescued)/floatRounds
+        mostLost = max(mostLost,score.lost)
+        leastLost = min(lowScore,score.lost)
+        avgLost += float(score.lost)/floatRounds
+    textsurface = myfont.render('Score: avg=' + "{:.3f}".format(avgScore) + ' high=' + str(highScore) + ' low=' + str(lowScore), True, RED)
+    screen.blit(textsurface,(0,0))
+    textsurface = myfont.render('Rescued: avg=' + "{:.3f}".format(avgRescued) + ' high=' + str(mostRescued) + ' low=' + str(leastRescued), True, RED)
+    screen.blit(textsurface,(0,fontSize))
+    textsurface = myfont.render('Lost: avg=' + "{:.3f}".format(avgLost) + ' high=' + str(mostLost) + ' low=' + str(leastLost), True, RED)
+    screen.blit(textsurface,(0,2*fontSize))
+    pygame.display.flip()
+    return True
+
 
 def draw(sim):
     if(sim == None):
@@ -94,13 +133,17 @@ clock = pygame.time.Clock() # Create a clock object
 
 while 1:
     processInput(pygame.event.get())
-    newSim = getNewSim()
-    simChanged = False
-    if((newSim is None) != (sim is None)):
-        simChanged = True
-    elif((newSim is not None) and (sim is not None)):
-        simChanged = newSim.frame != sim.frame or newSim.simRound != sim.simRound
-    sim = newSim
-    if(simChanged or neverDrawn):
-        draw(sim)
+    if(sim != simulator.ALL_ROUNDS_DONE):
+        newSim = getNewSim()
+        if(newSim == simulator.ALL_ROUNDS_DONE and drawLeaderboard()):
+            sim = simulator.ALL_ROUNDS_DONE
+        else:
+            simChanged = False
+            if((newSim is None) != (sim is None)):
+                simChanged = True
+            elif((newSim is not None) and (sim is not None)):
+                simChanged = newSim.frame != sim.frame or newSim.simRound != sim.simRound
+            sim = newSim
+            if(simChanged or neverDrawn):
+                draw(sim)
     clock.tick(FPS)
