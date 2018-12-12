@@ -1,5 +1,11 @@
 # Puzzler 2018
 
+## Attributions
+SVGs are from https://game-icons.net:
+* Cyborg face icon by Delapouite (https://delapouite.com/) under CC BY 3.0
+* Annexation icon by Cathelineau (https://game-icons.net/) under CC BY 3.0
+* Cryo chamber icon by Delapouite (https://delapouite.com/) under CC BY 3.0
+
 ## Requirements
 * python 3.6.1 or greater
 * pipenv: https://pipenv.readthedocs.io/en/latest/

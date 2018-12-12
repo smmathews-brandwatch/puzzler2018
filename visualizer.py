@@ -4,13 +4,16 @@ pygame.init()
 # Define some colors
 BACKGROUND_COLOR = (0, 0, 0)
 EMPTY_COLOR = (255, 255, 255)
-ENEMIES = [pygame.image.load("assets/cartoonHexy.png"),pygame.image.load("assets/humanHexy.png")]
-COLLECTIBLES = [pygame.image.load("assets/brandWatch.png")]
-PLAYER_COLOR = (128, 128, 128)
-HOME_BASE_COLOR = (0, 255, 0)
-ENEMY_BASE_COLOR = (128, 128, 0)
 RED = (255, 0, 0)
 MARGIN = 1
+
+entityToImage = dict({
+    simulator.BoardPiece.Bot:pygame.image.load("assets/cartoonHexy.png"),
+    simulator.BoardPiece.Enemy:pygame.image.load("assets/cyborg-face.png"),
+    simulator.BoardPiece.Collectible:pygame.image.load("assets/brandWatch.png"),
+    simulator.BoardPiece.BotBase:pygame.image.load("assets/annexation.png"),
+    simulator.BoardPiece.EnemyBase:pygame.image.load("assets/cryo-chamber.png"),
+})
 
 size = width, height = 700, 500
 
@@ -52,16 +55,6 @@ def processInput(events):
             if(event.key == pygame.K_r):
                 networkBot.sendNextGame()
 
-entityToImage = dict({
-    simulator.BoardPiece.Enemy:ENEMIES,
-    simulator.BoardPiece.Collectible:COLLECTIBLES,
-})
-entityToColor = dict({
-    simulator.BoardPiece.Bot:PLAYER_COLOR,
-    simulator.BoardPiece.BotBase:HOME_BASE_COLOR,
-    simulator.BoardPiece.EnemyBase:ENEMY_BASE_COLOR
-})
-
 def draw(sim):
     if(sim == None):
         return
@@ -87,16 +80,7 @@ def draw(sim):
                             pieceHeight])
     for entity in sim.board.entities:
         if(entity.ownerId is None):
-            if(entity.boardPiece in entityToColor):
-                    pygame.draw.rect(screen,
-                        entityToColor[entity.boardPiece],
-                        [(pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
-                        (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN + textMargin,
-                        pieceWidth,
-                        pieceHeight])
-            else:
-                images = entityToImage[entity.boardPiece]
-                image = images[entity.id % len(images)]
+                image = entityToImage[entity.boardPiece]
                 image = pygame.transform.scale(image, (int(pieceWidth),int(pieceHeight)))
                 rect = pygame.Rect((pieceWidth + 2*MARGIN) * entity.position.x + MARGIN,
                     (pieceHeight + 2*MARGIN) * entity.position.y + MARGIN + textMargin,
