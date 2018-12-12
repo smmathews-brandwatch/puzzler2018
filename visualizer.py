@@ -95,7 +95,7 @@ def drawLeaderboard():
 
 
 def draw(sim):
-    if(sim == None):
+    if(sim == None || sim == simulator.ALL_ROUNDS_DONE):
         return
     global neverDrawn
     neverDrawn = False
