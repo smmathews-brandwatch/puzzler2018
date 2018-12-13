@@ -7,12 +7,16 @@ function runBot() {
     if (error) {
       console.error(error);
     } else {
-      console.log('API called successfully. Returned data: ' + JSON.stringify(data));
+      var tickRequest = new Puzzler2018.TickRequest();
+      var entityAction = new Puzzler2018.EntityAction();
+      entityAction.id = 0;
+      actions = [Puzzler2018.Action.up,Puzzler2018.Action.down,Puzzler2018.Action.left,Puzzler2018.Action.right]
+      entityAction.action = Puzzler2018.Action.stay;
+      // uncomment to move in a random direction
+      //entityAction.action = actions[Math.floor(Math.random()*actions.length)];
+      tickRequest.entityIdsToAction = [].concat(entityAction);
+      apiInstance.postSimulatorTick(tickRequest,gotTickResult)
     }
-    var opts = { 
-      'body': new Puzzler2018.TickBase() // TickBase | 
-    };
-    apiInstance.postSimulatorTick(opts,gotTickResult)
   };
   var getSimulatorState = function getSimulatorState() {
     apiInstance.getSimulatorState(gotSimulatorState);
@@ -21,8 +25,9 @@ function runBot() {
     if (error) {
       console.error(error);
     } else {
-      console.log('API called successfully. Returned data: ' + JSON.stringify(data));
+      // do something with the results of the tick
     }
+    // call directly to avoid the 1 second timeout
     setTimeout(getSimulatorState, 1000);
   };
   apiInstance.getSimulatorState(gotSimulatorState);
