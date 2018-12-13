@@ -29,3 +29,9 @@ run-base-bot:
 run-your-bot:
 	pipenv run python -m yourBot
 	
+install-js-bot:
+	npm install javascript-client
+	npm link javascript-client
+
+run-your-js-bot:
+	node yourBot.js
