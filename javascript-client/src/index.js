@@ -16,12 +16,12 @@
 (function(factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/Action', 'model/BoardPiece', 'model/Entity', 'model/EntityAction', 'model/EntityPosition', 'model/InlineResponse400', 'model/Score', 'model/Simulator', 'model/SimulatorBoard', 'model/TickBase', 'api/ScoresApi', 'api/SimulatorApi'], factory);
+    define(['ApiClient', 'model/Action', 'model/BoardPiece', 'model/Entity', 'model/EntityAction', 'model/EntityPosition', 'model/InlineResponse400', 'model/Score', 'model/Simulator', 'model/SimulatorBoard', 'model/TickBase', 'model/TickRequest', 'model/TickResponse', 'api/ScoresApi', 'api/SimulatorApi'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('./ApiClient'), require('./model/Action'), require('./model/BoardPiece'), require('./model/Entity'), require('./model/EntityAction'), require('./model/EntityPosition'), require('./model/InlineResponse400'), require('./model/Score'), require('./model/Simulator'), require('./model/SimulatorBoard'), require('./model/TickBase'), require('./api/ScoresApi'), require('./api/SimulatorApi'));
+    module.exports = factory(require('./ApiClient'), require('./model/Action'), require('./model/BoardPiece'), require('./model/Entity'), require('./model/EntityAction'), require('./model/EntityPosition'), require('./model/InlineResponse400'), require('./model/Score'), require('./model/Simulator'), require('./model/SimulatorBoard'), require('./model/TickBase'), require('./model/TickRequest'), require('./model/TickResponse'), require('./api/ScoresApi'), require('./api/SimulatorApi'));
   }
-}(function(ApiClient, Action, BoardPiece, Entity, EntityAction, EntityPosition, InlineResponse400, Score, Simulator, SimulatorBoard, TickBase, ScoresApi, SimulatorApi) {
+}(function(ApiClient, Action, BoardPiece, Entity, EntityAction, EntityPosition, InlineResponse400, Score, Simulator, SimulatorBoard, TickBase, TickRequest, TickResponse, ScoresApi, SimulatorApi) {
   'use strict';
 
   /**
@@ -111,6 +111,16 @@
      * @property {module:model/TickBase}
      */
     TickBase: TickBase,
+    /**
+     * The TickRequest model constructor.
+     * @property {module:model/TickRequest}
+     */
+    TickRequest: TickRequest,
+    /**
+     * The TickResponse model constructor.
+     * @property {module:model/TickResponse}
+     */
+    TickResponse: TickResponse,
     /**
      * The ScoresApi service constructor.
      * @property {module:api/ScoresApi}

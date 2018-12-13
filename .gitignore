@@ -1,3 +1,6 @@
 Pipfile.lock 
 .vscode
 __pychache__
+node_modules
+package-lock.json
+

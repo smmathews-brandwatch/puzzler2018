@@ -16,18 +16,18 @@
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/InlineResponse400', 'model/Simulator', 'model/TickBase'], factory);
+    define(['ApiClient', 'model/InlineResponse400', 'model/TickBase', 'model/TickResponse'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('../model/InlineResponse400'), require('../model/Simulator'), require('../model/TickBase'));
+    module.exports = factory(require('../ApiClient'), require('../model/InlineResponse400'), require('../model/TickBase'), require('../model/TickResponse'));
   } else {
     // Browser globals (root is window)
     if (!root.Puzzler2018) {
       root.Puzzler2018 = {};
     }
-    root.Puzzler2018.SimulatorApi = factory(root.Puzzler2018.ApiClient, root.Puzzler2018.InlineResponse400, root.Puzzler2018.Simulator, root.Puzzler2018.TickBase);
+    root.Puzzler2018.SimulatorApi = factory(root.Puzzler2018.ApiClient, root.Puzzler2018.InlineResponse400, root.Puzzler2018.TickBase, root.Puzzler2018.TickResponse);
   }
-}(this, function(ApiClient, InlineResponse400, Simulator, TickBase) {
+}(this, function(ApiClient, InlineResponse400, TickBase, TickResponse) {
   'use strict';
 
   /**
@@ -91,7 +91,7 @@
      * Callback function to receive the result of the postSimulatorTick operation.
      * @callback module:api/SimulatorApi~postSimulatorTickCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/Simulator} data The data returned by the service call.
+     * @param {module:model/TickResponse} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
@@ -99,7 +99,7 @@
      * specify the bot&#39;s action for this frame
      * @param {module:model/TickBase} body 
      * @param {module:api/SimulatorApi~postSimulatorTickCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/Simulator}
+     * data is of type: {@link module:model/TickResponse}
      */
     this.postSimulatorTick = function(body, callback) {
       var postBody = body;
@@ -124,7 +124,7 @@
       var authNames = [];
       var contentTypes = ['application/json'];
       var accepts = ['application/json'];
-      var returnType = Simulator;
+      var returnType = TickResponse;
 
       return this.apiClient.callApi(
         '/simulator/tick', 'POST',
