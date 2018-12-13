@@ -72,9 +72,14 @@ In addition to visualizing the current state of the simulator (and ending score 
 make && make run-base-bot
 ```
 
-### Run your own bot (see yourBot.py to implement. By default will just print 'implement me', stay in the same spot, and wait a second)
+### Run your own bot (see yourBot.py/yourBot.js to implement. By default will just print 'implement me', stay in the same spot, and wait a second)
+#### python
 ```
 make && make run-your-bot
+```
+#### js
+```
+make install-js-bot && make run-your-js-bot
 ```
 
 ## Swagger Editor
