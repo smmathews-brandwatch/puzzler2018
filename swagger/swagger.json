@@ -93,10 +93,10 @@
         "parameters": [
           {
             "in": "body",
-            "name": "actions",
-            "description": "One or more for action each bot.",
+            "required": true,
+            "name": "body",
             "schema": {
-              "$ref": "#/definitions/EntityAction"
+              "$ref": "#/definitions/TickBase"
             }
           }
         ],
@@ -110,7 +110,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/Simulator"
+              "$ref": "#/definitions/TickResponse"
             }
           },
           "400": {
@@ -173,6 +173,31 @@
         "enemy_base"
       ]
     },
+    "TickRequest": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/TickBase"
+        }
+      ]
+    },
+    "TickResponse": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/TickBase"
+        }
+      ]
+    },
+    "TickBase": {
+      "type": "object",
+      "properties": {
+        "entityIdsToAction": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAction"
+          }
+        }
+      }
+    },
     "EntityAction": {
       "type": "object",
       "properties": {
@@ -180,7 +205,6 @@
           "type": "integer"
         },
         "action": {
-          "type": "string",
           "$ref": "#/definitions/Action"
         }
       }
@@ -189,7 +213,6 @@
       "type": "object",
       "properties": {
         "boardPiece": {
-          "type": "string",
           "$ref": "#/definitions/BoardPiece"
         },
         "id": {

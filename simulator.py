@@ -39,8 +39,9 @@ class TickBase(GameObject):
             self.entityIdsToAction = entityIdsToAction if entityIdsToAction is not None else []
         else:
             self.entityIdsToAction = []
-            for entityIdToAction in fromDict['entityIdsToAction']:
-                self.entityIdsToAction.append(EntityAction(fromDict=entityIdToAction))
+            if('entityIdsToAction' in fromDict):
+                for entityIdToAction in fromDict['entityIdsToAction']:
+                    self.entityIdsToAction.append(EntityAction(fromDict=entityIdToAction))
 
 class BoardPiece(GameObject):
     Empty = 'empty'
@@ -271,14 +272,8 @@ class Simulator(GameObject):
         return TickResponse(entityIdsToAction=response.entityIdsToAction)
 
 class TickResponse(TickBase):
-    def __init__(self, fromDict=None, entityIdsToAction=None, simRound=None, frame=None):
+    def __init__(self, fromDict=None, entityIdsToAction=None):
         super().__init__(fromDict=fromDict, entityIdsToAction=entityIdsToAction)
-        if(fromDict==None):
-            self.simRound = simRound
-            self.frame = frame
-        else:
-            self.simRound = fromDict['simRound']
-            self.frame = fromDict['frame']
 
 class TickRequest(TickBase):
     def __init__(self, fromDict=None, entityIdsToAction=None):

@@ -35,7 +35,12 @@ roundScores = []
 def tick():
     if(len(roundScores) >= maxRounds):
         return ALL_ROUNDS_DONE
-    botsTick = TickRequest(fromDict=json.loads(request.get_json()))
+    jsonData = request.get_json()
+    if(type(jsonData) is dict):
+        fromDict = request.get_json()
+    else:
+        fromDict=json.loads(jsonData)
+    botsTick = TickRequest(fromDict=fromDict)
     result = simulator.handleTickRequest(botsTick)
     response = jsonify(result)
     if(isinstance(result,BadTick)):

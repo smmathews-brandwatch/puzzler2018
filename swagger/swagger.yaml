@@ -61,10 +61,10 @@ paths:
       operationId: "postSimulatorTick"
       parameters:
         - in: body
-          name: actions
-          description: One or more for action each bot.
+          required: true
+          name: body
           schema:
-            $ref: "#/definitions/EntityAction"  
+            $ref: "#/definitions/TickBase"  
       consumes:
         - "application/json"
       produces:
@@ -73,7 +73,7 @@ paths:
         200:
           description: "successful operation"
           schema:
-            $ref: "#/definitions/Simulator"
+            $ref: "#/definitions/TickResponse"
         400:
           description: "Bad tick (duplicated or invalid ids)"
           schema:
@@ -115,19 +115,30 @@ definitions:
       - collectible
       - bot_base
       - enemy_base
+  TickRequest:
+    allOf:
+      - $ref: "#/definitions/TickBase"
+  TickResponse:
+    allOf:
+      - $ref: "#/definitions/TickBase"
+  TickBase:
+    type: "object"
+    properties:
+      entityIdsToAction:
+        type: "array"
+        items:
+          $ref: "#/definitions/EntityAction"
   EntityAction:
     type: "object"
     properties:
       id:
         type: "integer"
       action:
-        type: "string"
         $ref: '#/definitions/Action'
   Entity:
     type: "object"
     properties:
       boardPiece:
-        type: "string"
         $ref: '#/definitions/BoardPiece'
       id:
         type: "object"

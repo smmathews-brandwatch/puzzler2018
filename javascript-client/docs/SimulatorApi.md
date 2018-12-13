@@ -49,7 +49,7 @@ No authorization required
 
 <a name="postSimulatorTick"></a>
 # **postSimulatorTick**
-> Simulator postSimulatorTick(body)
+> TickResponse postSimulatorTick(body)
 
 specify the bot&#39;s action for this frame
 
@@ -80,7 +80,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Simulator**](Simulator.md)
+[**TickResponse**](TickResponse.md)
 
 ### Authorization
 

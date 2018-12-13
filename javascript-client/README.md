@@ -132,6 +132,8 @@ Class | Method | HTTP request | Description
  - [Puzzler2018.Simulator](docs/Simulator.md)
  - [Puzzler2018.SimulatorBoard](docs/SimulatorBoard.md)
  - [Puzzler2018.TickBase](docs/TickBase.md)
+ - [Puzzler2018.TickRequest](docs/TickRequest.md)
+ - [Puzzler2018.TickResponse](docs/TickResponse.md)
 
 
 ## Documentation for Authorization
