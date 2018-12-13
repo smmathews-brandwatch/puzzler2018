@@ -9,7 +9,7 @@ function runBot() {
     } else {
       var tickRequest = new Puzzler2018.TickRequest();
       var entityAction = new Puzzler2018.EntityAction();
-      entityAction.id = 0;
+      entityAction.id = 0;// in a single player game the player's id is always zero, but we could find this in the data as well
       actions = [Puzzler2018.Action.up,Puzzler2018.Action.down,Puzzler2018.Action.left,Puzzler2018.Action.right]
       entityAction.action = Puzzler2018.Action.stay;
       // uncomment to move in a random direction
@@ -25,7 +25,7 @@ function runBot() {
     if (error) {
       console.error(error);
     } else {
-      // do something with the results of the tick
+      // do something with the results of the tick (in data)
     }
     // call directly to avoid the 1 second timeout
     setTimeout(getSimulatorState, 1000);
