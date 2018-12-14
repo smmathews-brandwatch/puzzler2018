@@ -140,6 +140,7 @@ class Board(GameObject):
                             toReturn.lost += 1
                         elif otherEntity.boardPiece == BoardPiece.BotBase:
                             toReturn.rescued += 1
+                        break
         return toReturn
 
 class Score(GameObject):

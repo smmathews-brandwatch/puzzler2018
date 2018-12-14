@@ -79,10 +79,10 @@ def drawLeaderboard():
         lowScore = min(lowScore,pointScore)
         avgScore += float(pointScore)/floatRounds
         mostRescued = max(mostRescued,score.rescued)
-        leastRescued = min(lowScore,score.rescued)
+        leastRescued = min(leastRescued,score.rescued)
         avgRescued += float(score.rescued)/floatRounds
         mostLost = max(mostLost,score.lost)
-        leastLost = min(lowScore,score.lost)
+        leastLost = min(leastLost,score.lost)
         avgLost += float(score.lost)/floatRounds
     textsurface = myfont.render('Score: avg=' + "{:.3f}".format(avgScore) + ' high=' + str(highScore) + ' low=' + str(lowScore), True, RED)
     screen.blit(textsurface,(0,0))
