@@ -30,17 +30,22 @@ execute the following to install your dependencies and start a annoying-sounding
 ```
 make && make test-visualizer
 ```
+If you get the error message "python2.X: No module named pygame.examples", and you're on mac or windows, you may not have a python3 version of pythonw installed.
+For mac, this may fix it: 
+```
+brew install python --framework && pipenv --rm && make
+```
 
 ### Run server
 this actually runs the simulation and has endpoints to control the simulation
 ```
-make run-server
+make && make run-server
 ```
 
 ### Print routes
 print all available endpoints
 ```
-make print-routes
+make && make print-routes
 ```
 At the time of this writing, that was:
 
@@ -55,7 +60,7 @@ tick | POST | /simulator/tick
 ### Run visualizer
 this shows the current state of the local server's simulation by hitting the endpoints of the server
 ```
-make run-visualizer
+make && make run-visualizer
 ```
 
 #### Interactive Mode
@@ -65,12 +70,12 @@ In addition to visualizing the current state of the simulator (and ending score 
 
 ### Run the enemy random movement bot as the player bot
 ```
-make run-base-bot
+make && make run-base-bot
 ```
 
 ### Run your own bot (see yourBot.py to implement. By default will just print 'implement me', stay in the same spot, and wait a second)
 ```
-make run-your-bot
+make && make run-your-bot
 ```
 
 ## Swagger Editor
