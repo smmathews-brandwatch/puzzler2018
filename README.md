@@ -25,15 +25,14 @@ SVGs are from https://game-icons.net:
 
 ## Running
 
+### Gotchas
+On Mac, you may need to install https://www.anaconda.com/download/#macos so pythonw for python3 is available.
+You may need to install pygame directly: `python3 -m pip install -U pygame --user` to get the visualizer working
+
 ### First steps
-execute the following to install your dependencies and start a annoying-sounding aliens example game. you should hear sound and see a some alien space ships, which will automatically close when they get to your vehicle.
+Execute the following to install your dependencies and start a annoying-sounding aliens example game. you should hear sound and see a some alien space ships, which will automatically close when they get to your vehicle.
 ```
 make && make test-visualizer
-```
-If you get the error message "python2.X: No module named pygame.examples", and you're on mac or windows, you may not have a python3 version of pythonw installed.
-For mac, this may fix it: 
-```
-brew install python --framework && pipenv --rm && make
 ```
 
 ### Run server
