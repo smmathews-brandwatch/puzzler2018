@@ -11,7 +11,7 @@ SVGs are from https://game-icons.net:
 * pipenv: https://pipenv.readthedocs.io/en/latest/
 
 ## Rules
-1. Implement your bot anywhere you'd like using the 'http://127.0.0.1/simulator/tick' endpoint and (optionally) the 'http://127.0.0.1/simulator/new' endpoint. For your convenience, yourBot.py is available to give you a starting point and baseBot.py is available to see how the enemies work.
+1. Implement your bot anywhere you'd like using the 'http://127.0.0.1:5000/simulator/tick' endpoint and (optionally) the 'http://127.0.0.1:5000/simulator/new' endpoint. For your convenience, yourBot.py is available to give you a starting point and baseBot.py is available to see how the enemies work.
 1. The entities will execute their actions in the order they're listed in the sim.board.entities list
 1. The player's bot can't move on to a space occupied by another entity, except for a collectible the player is picking up
 1. The player can't hold up more than 5 collectibles
