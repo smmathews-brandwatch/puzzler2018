@@ -73,11 +73,15 @@ my $ua = LWP::UserAgent->new;
 
 print "Starting...\n";
 
+my $rescues = 0;
 for (;;) {
   my $state = getState();
   my $nextMove = getNextMove($state);
   if ($nextMove eq 'none') {
     print "round# " . $state->{'simRound'} . ": rescued=" . $state->{'score'}->{'rescued'} . " lost=" . $state->{'score'}->{'lost'} . "\n";
+    $rescues += $state->{'score'}->{'rescued'};
+    print "Current Average Score: " . ($rescues / ($state->{'simRound'} + 1)) . "\n";
+    sleep 1;
     newSimulator();
   } else {
     sendTick($nextMove);
@@ -129,18 +133,27 @@ sub addEdges {
   for $x (0..$state->{'board'}->{'width'} - 1) {
     for $y (0..$state->{'board'}->{'height'} - 1) {
       my $vId = getVertexId($x, $y);
-      my $e = $graph->get_vertex_attributes($vId);
-      my $isEntityBotOrEmpty = $e->{'boardPiece'} eq 'bot' || $e->{'boardPiece'} eq 'empty';
-      my $isEntityValidCollectible = $e->{'boardPiece'} eq 'collectible' && !$meta{'backpackFull'};
-      if ($isEntityBotOrEmpty || $isEntityValidCollectible) {
+      if (isValidSourceEdge($vId, $graph, %meta)) {
         my ($vId_l, $vId_r, $vId_u, $vId_d) = (getVertexId($x - 1, $y), getVertexId($x + 1, $y), getVertexId($x, $y - 1), getVertexId($x, $y + 1));
-        $graph->add_edge($vId, $vId_l) if ($graph->has_vertex($vId_l));
-        $graph->add_edge($vId, $vId_r) if ($graph->has_vertex($vId_r));
-        $graph->add_edge($vId, $vId_u) if ($graph->has_vertex($vId_u));
-        $graph->add_edge($vId, $vId_d) if ($graph->has_vertex($vId_d));
+        $graph->add_edge($vId, $vId_l) if ($graph->has_vertex($vId_l) && isValidDestinationEdge($vId_l, $graph, %meta));
+        $graph->add_edge($vId, $vId_r) if ($graph->has_vertex($vId_r) && isValidDestinationEdge($vId_r, $graph, %meta));
+        $graph->add_edge($vId, $vId_u) if ($graph->has_vertex($vId_u) && isValidDestinationEdge($vId_u, $graph, %meta));
+        $graph->add_edge($vId, $vId_d) if ($graph->has_vertex($vId_d) && isValidDestinationEdge($vId_d, $graph, %meta));
       }
     }
   }
+}
+
+sub isValidSourceEdge() {
+  my ($vId, $graph, %meta) = @_;
+  my $e = $graph->get_vertex_attributes($vId);
+  return $e->{'boardPiece'} eq 'bot' || $e->{'boardPiece'} eq 'empty' || ($e->{'boardPiece'} eq 'collectible' && !$meta{'backpackFull'});
+}
+
+sub isValidDestinationEdge() {
+  my ($vId, $graph, %meta) = @_;
+  my $e = $graph->get_vertex_attributes($vId);
+  return $e->{'boardPiece'} eq 'empty' || ($e->{'boardPiece'} eq 'collectible' && !$meta{'backpackFull'}) || $e->{'boardPiece'} eq 'bot_base';
 }
 
 sub getNextMove { 
