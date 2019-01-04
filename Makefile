@@ -20,8 +20,11 @@ test-server:
 print-routes:
 	FLASK_APP=server.py pipenv run flask routes
 
-run-server:
-	pipenv run python -m server
+run-server-simple:
+	pipenv run python -m server 100
+
+run-server-submission:
+	pipenv run python -m server 1000
 
 run-base-bot:
 	pipenv run python -m baseBot

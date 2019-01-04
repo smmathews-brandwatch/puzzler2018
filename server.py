@@ -3,6 +3,7 @@ import webbrowser
 from simulator import *
 import json
 import logging
+import sys
 
 app = Flask(__name__, static_folder=None)
 app.env = 'development'
@@ -79,4 +80,7 @@ def routes():
         print(route)
 
 if __name__ == "__main__":
+    if(len(sys.argv) > 1):
+        maxRounds = int(sys.argv[1])
+    print('maxRounds:' + str(maxRounds))
     app.run()
