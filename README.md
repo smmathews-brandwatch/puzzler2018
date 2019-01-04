@@ -37,8 +37,14 @@ make && make test-visualizer
 
 ### Run server
 this actually runs the simulation and has endpoints to control the simulation
+#### for testing (100 rounds)
 ```
-make && make run-server
+make && make run-server-simple
+```
+
+#### for submission (1000 rounds)
+```
+make && make run-server-submission
 ```
 
 ### Print routes
