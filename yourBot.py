@@ -1,33 +1,54 @@
 import botActions, time, random, queue, math
-from simulator import BoardPiece, Action, Position
+from simulator import BoardPiece, Action, Position, ALL_ROUNDS_DONE
 
 # soup nazi bot (no collectibles for you!)
 # 1) Attempt to deny the enemy bots their highest likelyhood collectibles right at the beginning
 # 2) Assume the bots are just as likely to attempt to move up, down, left, or right every frame.
 # 3) Based on bing, aykut, and damian's current sores (<9), don't worry too much about getting the 10th collectible.
 
+def takeFirst(elem):
+    return elem[0]
+
 class Util:
     def __init__(self, sim):
         self.numCollectiblesOnPlayer = 0
-        self.numCollectiblesOnBotOneMoveFromBase = 0
+        self.numCollectiblesLeft = 0
+        self.numCollectiblesOnEnemies = 0
         self.playerId = None
         self.enemyIds = []
+        self.enemyPositions = []
+        self.playerPosition = None
+        self.riskiestCollectibles = []
+        risk = 100000
         for otherEntity in sim.board.entities:
             if otherEntity.boardPiece == BoardPiece.Bot:
                 self.playerId = otherEntity.id
+                self.playerPosition = otherEntity.position
             elif otherEntity.boardPiece == BoardPiece.Enemy:
                 self.enemyIds.append(otherEntity.id)
-        if otherEntity.ownerId == self.playerId:
-            self.numCollectiblesOnPlayer += 1
-        elif otherEntity.ownerId in self.enemyIds:
-            self.enemyIds.append(otherEntity.ownerId)
+                self.enemyPositions.append(otherEntity.position)
+            elif otherEntity.boardPiece == BoardPiece.BotBase:
+                self.botBasePosition = otherEntity.position
+        for otherEntity in sim.board.entities:
+            if otherEntity.boardPiece == BoardPiece.Collectible:
+                if otherEntity.ownerId == self.playerId:
+                    self.numCollectiblesOnPlayer += 1
+                elif otherEntity.ownerId == None:
+                    self.numCollectiblesLeft += 1
+                    thisRisk = 1000
+                    for enemyPos in self.enemyPositions:
+                        thisRisk =  min(thisRisk,abs(enemyPos.x - otherEntity.position.x) + abs(enemyPos.y - otherEntity.position.y))
+                    self.riskiestCollectibles.append((thisRisk,otherEntity.position))
+                elif otherEntity.ownerId in self.enemyIds:
+                    self.numCollectiblesOnEnemies += 1
+        self.riskiestCollectibles.sort(key=takeFirst)
 
 class Node:
     def __init__(self, position, g, h, parent, move, numCollectiblesOnPath, boardPiece):
         self.position = position
         self.g = g
         self.h = h
-        self.f = g+h-(numCollectiblesOnPath*1.25)
+        self.f = g+h-(numCollectiblesOnPath*0.75)
         self.parent = parent
         self.move = move
         self.numCollectiblesOnPath = numCollectiblesOnPath
@@ -52,7 +73,9 @@ class Path:
         end_node = Node(end, 0, 0, None, None, 0, None)
         open_list.append(start_node)
 
-        while len(open_list) > 0:
+        self.move = None
+        self.collectibles = 0
+        while len(open_list) > 0 and len(open_list) < 1000:
             # Get the current node
             current_node = open_list[0]
             current_index = 0
@@ -71,8 +94,6 @@ class Path:
                 self.collectibles = current.numCollectiblesOnPath
                 while current.move is not None:
                     self.move = current.move
-                    if current.boardPiece == BoardPiece.Collectible:
-                        self.collectibles += 1
                     current = current.parent
                 return
             
@@ -84,7 +105,7 @@ class Path:
                 if(newPosition.x >= 0 and newPosition.x < sim.board.width and newPosition.y >= 0 and newPosition.y < sim.board.height):
                     piece = field[newPosition.y*sim.board.width + newPosition.x]
                     g = current_node.g + 1
-                    h = math.sqrt(((newPosition.x - end_node.position.x) ** 2) + ((newPosition.y - end_node.position.y) ** 2))
+                    h = ((newPosition.x - end_node.position.x) ** 2) + ((newPosition.y - end_node.position.y) ** 2)
                     numCollectiblesOnPath = current_node.numCollectiblesOnPath
                     if(piece == BoardPiece.Collectible and current_node.numCollectiblesOnPath < sim.maxCollectibles):
                         numCollectiblesOnPath += 1
@@ -110,34 +131,45 @@ class PathToPlayerBase(Path):
     def __init__(self, sim, util):
         start = None
         end = None
-        for otherEntity in sim.board.entities:
-            if util.playerId == otherEntity.id:
-                start = otherEntity.position
-            elif otherEntity.boardPiece == BoardPiece.BotBase:
-                end = otherEntity.position
-        super().__init__(sim, util, start, end)
+        super().__init__(sim, util, util.playerPosition, util.botBasePosition)
+
+class PathToRiskiest(Path):
+    def __init__(self, sim, util):
+        start = None
+        end = None
+        super().__init__(sim, util, util.playerPosition, util.riskiestPosition)
 
 class YourBot:
     def doAction(self, botActionsWrapper):
         sim = botActionsWrapper.getSim()
-        if(sim != None):
+        if(sim != None and sim != ALL_ROUNDS_DONE):
             util = Util(sim)
-            toBase = PathToPlayerBase(sim, util)
-            # toBase.collectibles == sim.maxCollectibles or toBase.collectibles == util.numCollectiblesLeft:
-            if True: 
-                if toBase.move == Action.MoveUp:
+            path = None
+            if util.numCollectiblesOnPlayer > 0:
+                print('nice')
+                toBase = PathToPlayerBase(sim, util)
+                # also check if there are barely enough frames to make it back
+                if toBase.collectibles+util.numCollectiblesOnPlayer == sim.maxCollectibles or (util.numCollectiblesLeft > 0 and toBase.collectibles+util.numCollectiblesOnPlayer == util.numCollectiblesLeft):
+                    path = toBase
+            if util.riskiestCollectibles != None and path == None:
+                i = 0
+                while((path == None or path.move is None) and (i < len(util.riskiestCollectibles))):
+                    print(str(i))
+                    path = Path(sim, util, util.playerPosition, util.riskiestCollectibles[i][1])
+                    i += 1
+
+            if path != None:
+                if path.move == Action.MoveUp:
                     actionsThisRound = botActionsWrapper.sendMoveUp()
-                elif  toBase.move == Action.MoveDown:
+                elif  path.move == Action.MoveDown:
                     actionsThisRound = botActionsWrapper.sendMoveDown()
-                elif  toBase.move == Action.MoveLeft:
+                elif  path.move == Action.MoveLeft:
                     actionsThisRound = botActionsWrapper.sendMoveLeft()
-                elif  toBase.move == Action.MoveRight:
+                elif  path.move == Action.MoveRight:
                     actionsThisRound = botActionsWrapper.sendMoveRight()
-            # else if there is 1 or more collectibles to be picked up
-            #   move towards collectible closest to an enemy
-            #else:
-            #   start the next game
-        time.sleep(1)
+            else:
+                print('ending this game')
+                botActionsWrapper.sendNextGame()
 
 if __name__ == "__main__":
     bot = YourBot()
