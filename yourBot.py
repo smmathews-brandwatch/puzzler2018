@@ -75,6 +75,7 @@ class Path:
 
         self.move = None
         self.collectibles = 0
+        self.moves = 0
         while len(open_list) > 0 and len(open_list) < 1000:
             # Get the current node
             current_node = open_list[0]
@@ -94,6 +95,7 @@ class Path:
                 self.collectibles = current.numCollectiblesOnPath
                 while current.move is not None:
                     self.move = current.move
+                    self.moves += 1
                     current = current.parent
                 return
             
@@ -107,7 +109,7 @@ class Path:
                     g = current_node.g + 1
                     h = ((newPosition.x - end_node.position.x) ** 2) + ((newPosition.y - end_node.position.y) ** 2)
                     numCollectiblesOnPath = current_node.numCollectiblesOnPath
-                    if(piece == BoardPiece.Collectible and current_node.numCollectiblesOnPath < sim.maxCollectibles):
+                    if(piece == BoardPiece.Collectible and current_node.numCollectiblesOnPath+util.numCollectiblesOnPlayer < sim.maxCollectibles):
                         numCollectiblesOnPath += 1
                         children.append(Node(newPosition, g, h, current_node, move,numCollectiblesOnPath, piece))
                     elif(newPosition == end or piece == BoardPiece.Empty):
@@ -145,18 +147,20 @@ class YourBot:
         if(sim != None and sim != ALL_ROUNDS_DONE):
             util = Util(sim)
             path = None
+            print('on player: ' + str(util.numCollectiblesOnPlayer))
+            print('available: ' + str(util.numCollectiblesLeft))
             if util.numCollectiblesOnPlayer > 0:
-                print('nice')
                 toBase = PathToPlayerBase(sim, util)
-                # also check if there are barely enough frames to make it back
-                if toBase.collectibles+util.numCollectiblesOnPlayer == sim.maxCollectibles or (util.numCollectiblesLeft > 0 and toBase.collectibles+util.numCollectiblesOnPlayer == util.numCollectiblesLeft):
+                if sim.maxFrames - sim.frame <= toBase.moves+1 or toBase.collectibles+util.numCollectiblesOnPlayer == sim.maxCollectibles or util.numCollectiblesLeft == 0:
                     path = toBase
+                    print('Going Home: ' + str(toBase.collectibles))
             if util.riskiestCollectibles != None and path == None:
                 i = 0
                 while((path == None or path.move is None) and (i < len(util.riskiestCollectibles))):
-                    print(str(i))
                     path = Path(sim, util, util.playerPosition, util.riskiestCollectibles[i][1])
                     i += 1
+                    if path.move != None:
+                        print('Going to ' + str(path.collectibles))
 
             if path != None:
                 if path.move == Action.MoveUp:
@@ -170,8 +174,9 @@ class YourBot:
                 else:
                     actionsThisRound = botActionsWrapper.sendStay()
             else:
-                print('ending this game')
+                print('ending this fing game')
                 botActionsWrapper.sendNextGame()
+            #time.sleep(1)
 
 if __name__ == "__main__":
     bot = YourBot()
