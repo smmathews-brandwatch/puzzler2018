@@ -36,8 +36,14 @@ class Util:
                 elif otherEntity.ownerId == None:
                     self.numCollectiblesLeft += 1
                     thisRisk = 1000
+                    #toPlayer = abs(self.playerPosition.x - otherEntity.position.x) + abs(self.playerPosition.y - otherEntity.position.y)
+                    pathFromPlayer = Path(sim, self, self.playerPosition, otherEntity.position)
+                    movesFromPlayer = pathFromPlayer.moves if pathFromPlayer.moves != None else 1000
                     for enemyPos in self.enemyPositions:
-                        thisRisk =  min(thisRisk,abs(enemyPos.x - otherEntity.position.x) + abs(enemyPos.y - otherEntity.position.y))
+                        #toEnemy = abs(enemyPos.x - otherEntity.position.x) + abs(enemyPos.y - otherEntity.position.y)
+                        pathFromEnemy = Path(sim, self, enemyPos, otherEntity.position)
+                        movesFromEnemy = pathFromEnemy.moves if pathFromEnemy.moves != None else 1000
+                        thisRisk =  min(thisRisk, (movesFromEnemy ** 2) + movesFromPlayer)
                     self.riskiestCollectibles.append((thisRisk,otherEntity.position))
                 elif otherEntity.ownerId in self.enemyIds:
                     self.numCollectiblesOnEnemies += 1
@@ -149,6 +155,7 @@ class YourBot:
             path = None
             print('on player: ' + str(util.numCollectiblesOnPlayer))
             print('available: ' + str(util.numCollectiblesLeft))
+            # check if we're statistically more likely to lose points by continueing than by going to the next game
             if util.numCollectiblesOnPlayer > 0:
                 toBase = PathToPlayerBase(sim, util)
                 if sim.maxFrames - sim.frame <= toBase.moves+1 or toBase.collectibles+util.numCollectiblesOnPlayer == sim.maxCollectibles or util.numCollectiblesLeft == 0:
