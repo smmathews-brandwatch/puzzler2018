@@ -17,8 +17,11 @@ class Util:
         self.playerId = None
         self.enemyIds = []
         self.enemyPositions = []
+        enemyCollectibles = []
         self.playerPosition = None
+        enemyBasePosition = None
         self.riskiestCollectibles = []
+        self.maxLostThisRound = 0
         risk = 100000
         for otherEntity in sim.board.entities:
             if otherEntity.boardPiece == BoardPiece.Bot:
@@ -29,6 +32,14 @@ class Util:
                 self.enemyPositions.append(otherEntity.position)
             elif otherEntity.boardPiece == BoardPiece.BotBase:
                 self.botBasePosition = otherEntity.position
+            elif otherEntity.boardPiece == BoardPiece.EnemyBase:
+                enemyBasePosition = otherEntity.position
+        for enemyInfo in zip(self.enemyPositions,self.enemyIds):
+            pos = enemyInfo[0]
+            if abs(enemyBasePosition.x - pos.x) + abs(enemyBasePosition.y - pos.y) == 1:
+                for otherEntity in sim.board.entities:
+                    if otherEntity.ownerId == enemyInfo[1]:
+                        self.maxLostThisRound += 1
         for otherEntity in sim.board.entities:
             if otherEntity.boardPiece == BoardPiece.Collectible:
                 if otherEntity.ownerId == self.playerId:
@@ -152,22 +163,28 @@ class YourBot:
         sim = botActionsWrapper.getSim()
         if(sim != None and sim != ALL_ROUNDS_DONE):
             util = Util(sim)
+            print(util.maxLostThisRound)
             path = None
             print('on player: ' + str(util.numCollectiblesOnPlayer))
             print('available: ' + str(util.numCollectiblesLeft))
+            maxGainedThisGame = util.numCollectiblesOnPlayer + util.numCollectiblesLeft
+            toBase = PathToPlayerBase(sim, util)
+            if toBase.moves is not None and (sim.maxFrames - sim.frame) <= toBase.moves:
+                maxGainedThisGame = 0
             # check if we're statistically more likely to lose points by continueing than by going to the next game
-            if util.numCollectiblesOnPlayer > 0:
-                toBase = PathToPlayerBase(sim, util)
-                if sim.maxFrames - sim.frame <= toBase.moves+1 or toBase.collectibles+util.numCollectiblesOnPlayer == sim.maxCollectibles or util.numCollectiblesLeft == 0:
-                    path = toBase
-                    print('Going Home: ' + str(toBase.collectibles))
-            if util.riskiestCollectibles != None and path == None:
-                i = 0
-                while((path == None or path.move is None) and (i < len(util.riskiestCollectibles))):
-                    path = Path(sim, util, util.playerPosition, util.riskiestCollectibles[i][1])
-                    i += 1
-                    if path.move != None:
-                        print('Going to ' + str(path.collectibles))
+            canEndWell = util.maxLostThisRound <= maxGainedThisGame
+            if canEndWell:
+                if util.numCollectiblesOnPlayer > 0:
+                    if sim.maxFrames - sim.frame <= toBase.moves+1 or toBase.collectibles+util.numCollectiblesOnPlayer == sim.maxCollectibles or util.numCollectiblesLeft == 0:
+                        path = toBase
+                        print('Going Home: ' + str(toBase.collectibles))
+                if util.riskiestCollectibles != None and path == None:
+                    i = 0
+                    while((path == None or path.move is None) and (i < len(util.riskiestCollectibles))):
+                        path = Path(sim, util, util.playerPosition, util.riskiestCollectibles[i][1])
+                        i += 1
+                        if path.move != None:
+                            print('Going to ' + str(path.collectibles))
 
             if path != None:
                 if path.move == Action.MoveUp:
@@ -181,6 +198,8 @@ class YourBot:
                 else:
                     actionsThisRound = botActionsWrapper.sendStay()
             else:
+                if not canEndWell:
+                    print('this will not end well')
                 print('ending this fing game')
                 botActionsWrapper.sendNextGame()
             #time.sleep(1)
