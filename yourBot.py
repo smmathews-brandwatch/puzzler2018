@@ -167,6 +167,8 @@ class YourBot:
                     actionsThisRound = botActionsWrapper.sendMoveLeft()
                 elif  path.move == Action.MoveRight:
                     actionsThisRound = botActionsWrapper.sendMoveRight()
+                else:
+                    actionsThisRound = botActionsWrapper.sendStay()
             else:
                 print('ending this game')
                 botActionsWrapper.sendNextGame()
